@@ -22,6 +22,7 @@ struct BlogPost {
     std::string filename;
     std::string title;
     std::string content;
+    std::string excerpt;
     std::string outputPath;
     std::string publishDate;
     std::time_t timestamp;
@@ -64,6 +65,49 @@ std::string extractTitle(const std::string& markdown) {
     return "Untitled";
 }
 
+std::string extractExcerpt(const std::string& markdown, size_t maxLength = 200) {
+    std::stringstream ss(markdown);
+    std::string line;
+    std::string excerpt;
+    bool foundFirstParagraph = false;
+
+    while (std::getline(ss, line)) {
+        // Skip empty lines and headings
+        if (line.empty() || (line.length() > 0 && line[0] == '#')) {
+            continue;
+        }
+
+        // Accumulate paragraph text
+        if (!line.empty()) {
+            if (!excerpt.empty()) {
+                excerpt += " ";
+            }
+            excerpt += line;
+            foundFirstParagraph = true;
+
+            // Stop if we have enough text
+            if (excerpt.length() >= maxLength) {
+                break;
+            }
+        } else if (foundFirstParagraph) {
+            // Stop at the end of the first paragraph
+            break;
+        }
+    }
+
+    // Truncate to maxLength and add ellipsis if needed
+    if (excerpt.length() > maxLength) {
+        excerpt = excerpt.substr(0, maxLength);
+        size_t lastSpace = excerpt.find_last_of(" ");
+        if (lastSpace != std::string::npos) {
+            excerpt = excerpt.substr(0, lastSpace);
+        }
+        excerpt += "...";
+    }
+
+    return excerpt;
+}
+
 std::string getFileModificationDate(const std::string& filepath) {
     auto ftime = fs::last_write_time(filepath);
     auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
@@ -101,6 +145,14 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
         result.replace(pos, 11, content);
     }
 
+    // Replace CSS path placeholder
+    std::string cssPath = isInSubdirectory ? "../" : "";
+    pos = result.find("{{CSS_PATH}}");
+    while (pos != std::string::npos) {
+        result.replace(pos, 12, cssPath);
+        pos = result.find("{{CSS_PATH}}", pos + cssPath.length());
+    }
+
     // Generate navigation - only show main pages in specific order
     std::stringstream nav;
 
@@ -126,21 +178,71 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
     return result;
 }
 
-std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts) {
+std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int pageNum, int postsPerPage) {
     std::stringstream html;
+
+    // Calculate pagination
+    int totalPosts = blogPosts.size();
+    int totalPages = (totalPosts + postsPerPage - 1) / postsPerPage;
+    int startIdx = (pageNum - 1) * postsPerPage;
+    int endIdx = std::min(startIdx + postsPerPage, totalPosts);
 
     html << "<h1>Blog Posts</h1>\n";
     html << "<p>Welcome to my blog. Here are all my posts:</p>\n\n";
     html << "<div class=\"blog-list\">\n";
 
-    for (const auto& post : blogPosts) {
+    // Show posts for current page
+    for (int i = startIdx; i < endIdx; i++) {
+        const auto& post = blogPosts[i];
         html << "    <article class=\"blog-item\">\n";
         html << "        <h2><a href=\"blog/" << post.outputPath << "\">" << post.title << "</a></h2>\n";
         html << "        <p class=\"blog-date\">Published on " << post.publishDate << "</p>\n";
+
+        // Add excerpt if available
+        if (!post.excerpt.empty()) {
+            html << "        <p class=\"blog-excerpt\">" << post.excerpt << "</p>\n";
+        }
+
+        html << "        <a href=\"blog/" << post.outputPath << "\" class=\"read-more\">Read more →</a>\n";
         html << "    </article>\n";
     }
 
     html << "</div>\n";
+
+    // Add pagination controls if there are multiple pages
+    if (totalPages > 1) {
+        html << "\n<nav class=\"pagination\">\n";
+
+        // Previous button
+        if (pageNum > 1) {
+            std::string prevPage = (pageNum == 2) ? "blogs.html" : "blogs-" + std::to_string(pageNum - 1) + ".html";
+            html << "    <a href=\"" << prevPage << "\" class=\"pagination-btn\">&larr; Previous</a>\n";
+        } else {
+            html << "    <span class=\"pagination-btn disabled\">&larr; Previous</span>\n";
+        }
+
+        // Page numbers
+        html << "    <div class=\"pagination-numbers\">\n";
+        for (int i = 1; i <= totalPages; i++) {
+            std::string pageLink = (i == 1) ? "blogs.html" : "blogs-" + std::to_string(i) + ".html";
+            if (i == pageNum) {
+                html << "        <span class=\"page-number active\">" << i << "</span>\n";
+            } else {
+                html << "        <a href=\"" << pageLink << "\" class=\"page-number\">" << i << "</a>\n";
+            }
+        }
+        html << "    </div>\n";
+
+        // Next button
+        if (pageNum < totalPages) {
+            std::string nextPage = "blogs-" + std::to_string(pageNum + 1) + ".html";
+            html << "    <a href=\"" << nextPage << "\" class=\"pagination-btn\">Next &rarr;</a>\n";
+        } else {
+            html << "    <span class=\"pagination-btn disabled\">Next &rarr;</span>\n";
+        }
+
+        html << "</nav>\n";
+    }
 
     return html.str();
 }
@@ -150,9 +252,13 @@ int main(int argc, char* argv[]) {
 
     std::string contentDir = "content";
     std::string blogDir = "content/blog";
+    std::string imagesDir = "content/images";
     std::string outputDir = "docs";
     std::string blogOutputDir = "docs/blog";
+    std::string imagesOutputDir = "docs/images";
     std::string templatePath = "templates/template.html";
+    std::string cssSourcePath = "templates/style.css";
+    std::string cssOutputPath = "docs/style.css";
 
     // Create output directories if they don't exist
     if (!fs::exists(outputDir)) {
@@ -160,6 +266,33 @@ int main(int argc, char* argv[]) {
     }
     if (!fs::exists(blogOutputDir)) {
         fs::create_directory(blogOutputDir);
+    }
+    if (!fs::exists(imagesOutputDir)) {
+        fs::create_directory(imagesOutputDir);
+    }
+
+    // Copy CSS file to output directory
+    try {
+        fs::copy_file(cssSourcePath, cssOutputPath, fs::copy_options::overwrite_existing);
+        std::cout << "Copied: " << cssOutputPath << std::endl;
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Error copying CSS file: " << e.what() << std::endl;
+    }
+
+    // Copy images directory to output directory
+    if (fs::exists(imagesDir)) {
+        try {
+            for (const auto& entry : fs::directory_iterator(imagesDir)) {
+                if (entry.is_regular_file()) {
+                    std::string filename = entry.path().filename().string();
+                    std::string destPath = imagesOutputDir + "/" + filename;
+                    fs::copy_file(entry.path(), destPath, fs::copy_options::overwrite_existing);
+                    std::cout << "Copied image: " << destPath << std::endl;
+                }
+            }
+        } catch (const fs::filesystem_error& e) {
+            std::cerr << "Error copying images: " << e.what() << std::endl;
+        }
     }
 
     // Read template
@@ -219,6 +352,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 std::string title = extractTitle(markdownContent);
+                std::string excerpt = extractExcerpt(markdownContent);
                 std::string htmlContent = parser.convertToHTML(markdownContent);
                 std::string publishDate = getFileModificationDate(filepath);
                 std::time_t timestamp = getFileModificationTimestamp(filepath);
@@ -227,6 +361,7 @@ int main(int argc, char* argv[]) {
                 post.filename = filename;
                 post.title = title;
                 post.content = htmlContent;
+                post.excerpt = excerpt;
                 post.outputPath = outputFilename;
                 post.publishDate = publishDate;
                 post.timestamp = timestamp;
@@ -240,14 +375,26 @@ int main(int argc, char* argv[]) {
         return a.timestamp > b.timestamp;
     });
 
-    // Generate blog listing page and add to pages
-    std::string blogListingHTML = generateBlogListingHTML(blogPosts);
-    Page blogIndexPage;
-    blogIndexPage.filename = "blogs.md";
-    blogIndexPage.title = "Blog";
-    blogIndexPage.content = blogListingHTML;
-    blogIndexPage.outputPath = "blogs.html";
-    pages.push_back(blogIndexPage);
+    // Generate paginated blog listing pages
+    const int POSTS_PER_PAGE = 5;
+    int totalPosts = blogPosts.size();
+    int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
+
+    for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
+        std::string blogListingHTML = generateBlogListingHTML(blogPosts, pageNum, POSTS_PER_PAGE);
+        Page blogIndexPage;
+        blogIndexPage.filename = "blogs.md";
+        blogIndexPage.title = "Blog";
+        blogIndexPage.content = blogListingHTML;
+
+        if (pageNum == 1) {
+            blogIndexPage.outputPath = "blogs.html";
+        } else {
+            blogIndexPage.outputPath = "blogs-" + std::to_string(pageNum) + ".html";
+        }
+
+        pages.push_back(blogIndexPage);
+    }
 
     // Generate HTML files for regular pages
     for (const auto& page : pages) {

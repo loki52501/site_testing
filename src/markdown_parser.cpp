@@ -118,8 +118,8 @@ std::string MarkdownParser::convertToHTML(const std::string& markdown) {
         }
 
         std::string processedLine = line;
-        processedLine = parseLinks(processedLine);
         processedLine = parseImages(processedLine);
+        processedLine = parseLinks(processedLine);
         processedLine = parseBold(processedLine);
         processedLine = parseItalic(processedLine);
         processedLine = parseInlineCode(processedLine);
@@ -155,6 +155,7 @@ std::string MarkdownParser::parseHeaders(const std::string& line) {
 
     if (level > 0 && level <= 6 && i < line.length() && line[i] == ' ') {
         std::string content = trim(line.substr(i + 1));
+        content = parseImages(content);
         content = parseBold(content);
         content = parseItalic(content);
         content = parseLinks(content);
@@ -215,6 +216,7 @@ std::string MarkdownParser::parseList(const std::string& line, bool& inList, boo
     }
 
     std::string content = trim(trimmedLine.substr(contentStart));
+    content = parseImages(content);
     content = parseBold(content);
     content = parseItalic(content);
     content = parseLinks(content);
@@ -242,10 +244,10 @@ std::string MarkdownParser::parseCodeBlock(const std::string& line, bool& inCode
 
 std::string MarkdownParser::parseParagraph(const std::string& line) {
     std::string content = line;
+    content = parseImages(content);
     content = parseBold(content);
     content = parseItalic(content);
     content = parseLinks(content);
-    content = parseImages(content);
     content = parseInlineCode(content);
 
     return "<p>" + content + "</p>";
@@ -379,6 +381,7 @@ std::string MarkdownParser::parseTable(std::vector<std::string>& tableLines) {
         std::vector<std::string> cells = splitTableRow(tableLines[0]);
         for (const auto& cell : cells) {
             std::string processedCell = cell;
+            processedCell = parseImages(processedCell);
             processedCell = parseBold(processedCell);
             processedCell = parseItalic(processedCell);
             processedCell = parseLinks(processedCell);
@@ -397,6 +400,7 @@ std::string MarkdownParser::parseTable(std::vector<std::string>& tableLines) {
         std::vector<std::string> cells = splitTableRow(tableLines[i]);
         for (const auto& cell : cells) {
             std::string processedCell = cell;
+            processedCell = parseImages(processedCell);
             processedCell = parseBold(processedCell);
             processedCell = parseItalic(processedCell);
             processedCell = parseLinks(processedCell);
