@@ -2,7 +2,7 @@
 
 # Quantum degree
 
-I got my first quantum degree and I'm really proud of it, absolutely.
+I got my first quantum degree and I'm really proud of it, absolutely, thanks to google.
 
 
 ![quantumdegree](../images/quantum-degree.png)
