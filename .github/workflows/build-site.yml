@@ -30,9 +30,6 @@ jobs:
       - name: Generate site
         run: ./site_generator
 
-      - name: List generated files
-        run: ls -la docs/
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
