@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sample Blog Post - My Portfolio</title>
+    <title>QUIC Transport Optimizations from a Reimplementation - My Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,21 +17,31 @@
     </nav>
 
     <main>
-        <h1>Sample Blog Post</h1>
-<p>This is a sample blog post to demonstrate the new blog listing feature.</p>
-<p>The blog listing page will automatically show:</p>
+        <h1>QUIC Transport Optimizations from a Reimplementation</h1>
+<p><em>Published on 2025-12-05</em></p>
+<p>Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered.</p>
+<h2>What I Built</h2>
 <ul>
-  <li>The title of each blog post</li>
-  <li>The publication date and time</li>
-  <li>A clickable link to read the full post</li>
+  <li>C++ QUIC transport with custom congestion control and pacing</li>
+  <li>gRPC harness for cross-language benchmarks</li>
+  <li>Wireshark tracing inside a Docker-based latency simulator</li>
 </ul>
-<h2>Features</h2>
+<h2>Results</h2>
 <ul>
-  <li>Automatic date extraction from file metadata</li>
-  <li>Posts sorted by newest first</li>
-  <li>Clean, readable design</li>
+  <li>~25% reduction in average RTT under mixed loads</li>
+  <li>Smoother cwnd evolution and fewer bursty loss events</li>
 </ul>
-<p>All of this is generated automatically every time you run the C++ site generator!</p>
+<h2>Key Lessons</h2>
+<ul>
+  <li>Fine-grained pacing tames burst loss more than conservative cwnd alone.</li>
+  <li>Benchmark harnesses need predictable network conditions; Docker tc profiles helped.</li>
+  <li>Wireshark filters (udp.port && quic) made iterative tuning faster.</li>
+</ul>
+<h2>Next Steps</h2>
+<ul>
+  <li>Add BBR-style probing</li>
+  <li>Bake in automated pcap diffing in CI</li>
+</ul>
 
     </main>
 

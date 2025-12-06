@@ -73,9 +73,8 @@ std::string extractExcerpt(const std::string& markdown, size_t maxLength = 200) 
 
     while (std::getline(ss, line)) {
         // Skip empty lines and headings
-        if (line.empty() || (line.length() > 0 && line[0] == '#')) {
-            continue;
-        }
+        if (!line.empty() || !(line.length() > 0 && line[0] == '#')) {
+      
 
         // Accumulate paragraph text
         if (!line.empty()) {
@@ -94,7 +93,7 @@ std::string extractExcerpt(const std::string& markdown, size_t maxLength = 200) 
             break;
         }
     }
-
+    }
     // Truncate to maxLength and add ellipsis if needed
     if (excerpt.length() > maxLength) {
         excerpt = excerpt.substr(0, maxLength);
@@ -320,9 +319,8 @@ int main(int argc, char* argv[]) {
             std::cout << "Processing page: " << filename << std::endl;
 
             std::string markdownContent = readFile(filepath);
-            if (markdownContent.empty()) {
-                continue;
-            }
+            if (!markdownContent.empty()) {
+          
 
             std::string title = extractTitle(markdownContent);
             std::string htmlContent = parser.convertToHTML(markdownContent);
@@ -333,7 +331,7 @@ int main(int argc, char* argv[]) {
             page.content = htmlContent;
             page.outputPath = outputFilename;
             pages.push_back(page);
-        }
+        }}
     }
 
     // Process blog posts

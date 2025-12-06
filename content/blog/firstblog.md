@@ -1,5 +1,4 @@
-https://indify.co/widgets/live/clock/DXpV7ZAOA0J74WLhdaZ4
-
+# make it work
 ---
 
 | Hour | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday |
