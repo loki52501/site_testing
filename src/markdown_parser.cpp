@@ -175,7 +175,7 @@ std::string MarkdownParser::parseBold(const std::string& line) {
     result = std::regex_replace(result, boldAsterisk, "<strong>$1</strong>");
 
     // Bold with __text__
-    std::regex boldUnderscore("__(([^_]+))__");
+    std::regex boldUnderscore("__(.+?)__");
     result = std::regex_replace(result, boldUnderscore, "<strong>$1</strong>");
 
     return result;
@@ -185,12 +185,12 @@ std::string MarkdownParser::parseItalic(const std::string& line) {
     std::string result = line;
 
     // Italic with *text* (but not **text**)
-    std::regex italicAsterisk("(?<!\\*)\\*(?!\\*)([^*]+)(?<!\\*)\\*(?!\\*)");
-    result = std::regex_replace(result, italicAsterisk, "<em>$1</em>");
+    std::regex italicAsterisk("(^|[^*])\\*(?!\\*)([^*]+?)\\*(?!\\*)");
+    result = std::regex_replace(result, italicAsterisk, "$1<em>$2</em>");
 
     // Italic with _text_ (but not __text__)
-    std::regex italicUnderscore("(?<!_)_(?!_)([^_]+)(?<!_)_(?!_)");
-    result = std::regex_replace(result, italicUnderscore, "<em>$1</em>");
+    std::regex italicUnderscore("(^|[^_])_(?!_)([^_]+?)_(?!_)");
+    result = std::regex_replace(result, italicUnderscore, "$1<em>$2</em>");
 
     return result;
 }
