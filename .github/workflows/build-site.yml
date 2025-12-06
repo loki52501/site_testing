@@ -17,8 +17,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup C++ compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ make
+
+      - name: Clean output
+        run: rm -rf docs/*
+
+      - name: Build site generator
+        run: |
+          make clean
+          make
+
+      - name: Generate site
+        run: ./site_generator
+
       - name: List generated files
-        run: test -d docs && ls -la docs/
+        run: ls -la docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
