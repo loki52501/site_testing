@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - My Portfolio</title>
+    <title>Blog - My Portfolio</title>
     <style>
         * {
             margin: 0;
@@ -151,6 +151,79 @@
             font-size: 0.9rem;
         }
 
+        /* Blog Listing */
+        .blog-list {
+            margin-top: 2rem;
+        }
+
+        .blog-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .blog-item:last-child {
+            border-bottom: none;
+        }
+
+        .blog-item h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .blog-item h2 a {
+            color: #111;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .blog-item h2 a:hover {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .blog-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.5rem 0 0 0;
+            font-style: italic;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            display: block;
+        }
+
+        table thead {
+            background-color: #f8f8f8;
+        }
+
+        table th,
+        table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        table th {
+            font-weight: 600;
+            color: #111;
+            border-bottom: 2px solid #d0d0d0;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
         /* Responsive */
         @media screen and (max-width: 768px) {
             main {
@@ -170,28 +243,51 @@
             h2 {
                 font-size: 1.5rem;
             }
+
+            .blog-item h2 {
+                font-size: 1.3rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                padding: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav>
         <div class="container">
-            <a href="about.html">About</a><a href="index.html">Home</a><a href="projects.html">Projects</a>
+            <a href="index.html">Home</a><a href="about.html">About</a><a href="projects.html">Projects</a><a href="blogs.html">Blog</a>
         </div>
     </nav>
 
     <main>
-        <h1>Home</h1>
-<p>Welcome to my portfolio! I'm a developer passionate about building great software.</p>
-<h2>About Me</h2>
-<p>This is my personal portfolio website, built with a custom static site generator written in C++.</p>
-<h2>What I Do</h2>
-<ul>
-  <li>Software Development</li>
-  <li>Web Development</li>
-  <li>System Programming</li>
-</ul>
-<p>Feel free to explore my projects and blog posts.</p>
+        <h1>Blog Posts</h1>
+<p>Welcome to my blog. Here are all my posts:</p>
+
+<div class="blog-list">
+    <article class="blog-item">
+        <h2><a href="blog/quantumblog.html">my quantum blog post</a></h2>
+        <p class="blog-date">Published on December 06, 2025 at 02:51 PM</p>
+    </article>
+    <article class="blog-item">
+        <h2><a href="blog/table-test.html">Testing Table Support</a></h2>
+        <p class="blog-date">Published on December 06, 2025 at 02:39 PM</p>
+    </article>
+    <article class="blog-item">
+        <h2><a href="blog/sample-post.html">Sample Blog Post</a></h2>
+        <p class="blog-date">Published on December 06, 2025 at 02:31 PM</p>
+    </article>
+    <article class="blog-item">
+        <h2><a href="blog/firstblog.html">Untitled</a></h2>
+        <p class="blog-date">Published on December 06, 2025 at 01:20 PM</p>
+    </article>
+</div>
 
     </main>
 

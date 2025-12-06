@@ -14,7 +14,9 @@ std::string MarkdownParser::convertToHTML(const std::string& markdown) {
     bool inList = false;
     bool isOrdered = false;
     bool inParagraph = false;
+    bool inTable = false;
     std::string codeContent;
+    std::vector<std::string> tableLines;
 
     while (std::getline(ss, line)) {
         // Handle code blocks
@@ -29,6 +31,11 @@ std::string MarkdownParser::convertToHTML(const std::string& markdown) {
                     html << "</p>\n";
                     inParagraph = false;
                 }
+                if (inTable) {
+                    html << parseTable(tableLines);
+                    tableLines.clear();
+                    inTable = false;
+                }
                 html << codeHtml;
             }
             continue;
@@ -37,6 +44,26 @@ std::string MarkdownParser::convertToHTML(const std::string& markdown) {
         if (inCodeBlock) {
             codeContent += line + "\n";
             continue;
+        }
+
+        // Handle tables
+        if (isTableRow(line)) {
+            if (inList) {
+                html << (isOrdered ? "</ol>\n" : "</ul>\n");
+                inList = false;
+            }
+            if (inParagraph) {
+                html << "</p>\n";
+                inParagraph = false;
+            }
+            inTable = true;
+            tableLines.push_back(line);
+            continue;
+        } else if (inTable) {
+            // End of table
+            html << parseTable(tableLines);
+            tableLines.clear();
+            inTable = false;
         }
 
         // Handle empty lines
@@ -106,6 +133,9 @@ std::string MarkdownParser::convertToHTML(const std::string& markdown) {
     }
     if (inParagraph) {
         html << "</p>\n";
+    }
+    if (inTable) {
+        html << parseTable(tableLines);
     }
     if (inCodeBlock && !codeContent.empty()) {
         html << "<pre><code>" << escapeHTML(codeContent) << "</code></pre>\n";
@@ -279,4 +309,104 @@ std::string MarkdownParser::escapeHTML(const std::string& str) {
         }
     }
     return result;
+}
+
+bool MarkdownParser::isTableRow(const std::string& line) {
+    std::string trimmedLine = trim(line);
+    if (trimmedLine.empty()) return false;
+
+    // A table row starts and ends with |
+    if (trimmedLine[0] == '|' && trimmedLine.find('|', 1) != std::string::npos) {
+        return true;
+    }
+
+    return false;
+}
+
+bool MarkdownParser::isTableDelimiter(const std::string& line) {
+    std::string trimmedLine = trim(line);
+    if (!isTableRow(trimmedLine)) return false;
+
+    // Check if the line contains only |, -, and spaces
+    for (char c : trimmedLine) {
+        if (c != '|' && c != '-' && c != ' ' && c != ':') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::vector<std::string> MarkdownParser::splitTableRow(const std::string& line) {
+    std::vector<std::string> cells;
+    std::string trimmedLine = trim(line);
+
+    // Remove leading and trailing |
+    if (!trimmedLine.empty() && trimmedLine[0] == '|') {
+        trimmedLine = trimmedLine.substr(1);
+    }
+    if (!trimmedLine.empty() && trimmedLine.back() == '|') {
+        trimmedLine = trimmedLine.substr(0, trimmedLine.length() - 1);
+    }
+
+    // Split by |
+    std::stringstream ss(trimmedLine);
+    std::string cell;
+
+    while (std::getline(ss, cell, '|')) {
+        cells.push_back(trim(cell));
+    }
+
+    return cells;
+}
+
+std::string MarkdownParser::parseTable(std::vector<std::string>& tableLines) {
+    if (tableLines.empty()) return "";
+
+    std::stringstream html;
+    html << "<table>\n";
+
+    bool hasHeader = false;
+
+    // Check if the second line is a delimiter (indicating header row)
+    if (tableLines.size() > 1 && isTableDelimiter(tableLines[1])) {
+        hasHeader = true;
+    }
+
+    // Parse header if present
+    if (hasHeader) {
+        html << "  <thead>\n    <tr>\n";
+        std::vector<std::string> cells = splitTableRow(tableLines[0]);
+        for (const auto& cell : cells) {
+            std::string processedCell = cell;
+            processedCell = parseBold(processedCell);
+            processedCell = parseItalic(processedCell);
+            processedCell = parseLinks(processedCell);
+            processedCell = parseInlineCode(processedCell);
+            html << "      <th>" << processedCell << "</th>\n";
+        }
+        html << "    </tr>\n  </thead>\n";
+    }
+
+    // Parse body rows
+    html << "  <tbody>\n";
+    for (size_t i = (hasHeader ? 2 : 0); i < tableLines.size(); i++) {
+        if (isTableDelimiter(tableLines[i])) continue;
+
+        html << "    <tr>\n";
+        std::vector<std::string> cells = splitTableRow(tableLines[i]);
+        for (const auto& cell : cells) {
+            std::string processedCell = cell;
+            processedCell = parseBold(processedCell);
+            processedCell = parseItalic(processedCell);
+            processedCell = parseLinks(processedCell);
+            processedCell = parseInlineCode(processedCell);
+            html << "      <td>" << processedCell << "</td>\n";
+        }
+        html << "    </tr>\n";
+    }
+    html << "  </tbody>\n";
+
+    html << "</table>\n";
+    return html.str();
 }

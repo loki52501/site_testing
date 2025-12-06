@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - My Portfolio</title>
+    <title>Sample Blog Post - My Portfolio</title>
     <style>
         * {
             margin: 0;
@@ -151,6 +151,79 @@
             font-size: 0.9rem;
         }
 
+        /* Blog Listing */
+        .blog-list {
+            margin-top: 2rem;
+        }
+
+        .blog-item {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .blog-item:last-child {
+            border-bottom: none;
+        }
+
+        .blog-item h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .blog-item h2 a {
+            color: #111;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .blog-item h2 a:hover {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .blog-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.5rem 0 0 0;
+            font-style: italic;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            display: block;
+        }
+
+        table thead {
+            background-color: #f8f8f8;
+        }
+
+        table th,
+        table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        table th {
+            font-weight: 600;
+            color: #111;
+            border-bottom: 2px solid #d0d0d0;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
         /* Responsive */
         @media screen and (max-width: 768px) {
             main {
@@ -170,28 +243,45 @@
             h2 {
                 font-size: 1.5rem;
             }
+
+            .blog-item h2 {
+                font-size: 1.3rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                padding: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav>
         <div class="container">
-            <a href="about.html">About</a><a href="index.html">Home</a><a href="projects.html">Projects</a>
+            <a href="../index.html">Home</a><a href="../about.html">About</a><a href="../projects.html">Projects</a><a href="../blogs.html">Blog</a>
         </div>
     </nav>
 
     <main>
-        <h1>About</h1>
-<h2>Who I Am</h2>
-<p>I'm a software developer with expertise in multiple programming languages and technologies.</p>
-<h2>Skills</h2>
+        <h1>Sample Blog Post</h1>
+<p>This is a sample blog post to demonstrate the new blog listing feature.</p>
+<p>The blog listing page will automatically show:</p>
 <ul>
-  <li><strong>Languages</strong>: C++, Python, JavaScript</li>
-  <li><strong>Technologies</strong>: Git, Linux, Web Development</li>
-  <li><strong>Interests</strong>: System Programming, Web Technologies</li>
+  <li>The title of each blog post</li>
+  <li>The publication date and time</li>
+  <li>A clickable link to read the full post</li>
 </ul>
-<h2>Contact</h2>
-<p>Feel free to reach out to me for collaborations or opportunities.</p>
+<h2>Features</h2>
+<ul>
+  <li>Automatic date extraction from file metadata</li>
+  <li>Posts sorted by newest first</li>
+  <li>Clean, readable design</li>
+</ul>
+<p>All of this is generated automatically every time you run the C++ site generator!</p>
 
     </main>
 
