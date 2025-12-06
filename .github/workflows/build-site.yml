@@ -11,27 +11,13 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      TZ: America/New_York
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup C++ compiler
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++ make
-
-      - name: Clean output
-        run: rm -rf docs/*
-
-      - name: Build site generator
-        run: |
-          make clean
-          make
-
-      - name: Generate site
-        run: ./site_generator
 
       - name: List generated files
         run: ls -la docs/
