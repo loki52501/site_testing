@@ -1,0 +1,74 @@
+# Build artifacts
+*.o
+*.obj
+*.exe
+*.out
+*.app
+site_generator
+site_generator.exe
+a.out
+
+# Build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile.bak
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Dependencies
+*.d
+
+# Generated files - Keep docs/ for GitHub Pages deployment
+# Uncomment below if you want to ignore generated HTML during development
+# docs/*.html
+# docs/*.css
+# docs/*.js
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Package manager
+*.deb
+*.rpm
+
+# Core dumps
+core
+*.core

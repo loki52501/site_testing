@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog CMS - Content Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        textarea {
+            min-height: 400px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .preview {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .preview h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .posts-list {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #eee;
+        }
+
+        .post-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f9f9f9;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-item:hover {
+            background: #f0f0f0;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .help-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .markdown-guide {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .markdown-guide code {
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blog Content Management System</h1>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="markdown-guide">
+            <strong>Markdown Quick Guide:</strong><br>
+            <code># Heading</code> | <code>**bold**</code> | <code>*italic*</code> |
+            <code>[link](url)</code> | <code>![image](url)</code> | <code>`code`</code>
+        </div>
+
+        <form id="blogForm">
+            <div class="form-group">
+                <label for="filename">Filename (without .md extension):</label>
+                <input type="text" id="filename" name="filename" required placeholder="my-blog-post">
+                <div class="help-text">Use lowercase with hyphens (e.g., my-first-post)</div>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Post Title:</label>
+                <input type="text" id="title" name="title" required placeholder="My Awesome Blog Post">
+            </div>
+
+            <div class="form-group">
+                <label for="content">Content (Markdown):</label>
+                <textarea id="content" name="content" required placeholder="# My Blog Post
+
+Write your content here in **Markdown** format...
+
+## Subheading
+
+- List item 1
+- List item 2
+
+This is a paragraph with *italic* and **bold** text."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Download Markdown File</button>
+                <button type="button" class="btn-secondary" onclick="previewContent()">Preview</button>
+            </div>
+        </form>
+
+        <div id="preview" class="preview" style="display: none;">
+            <h2>Preview</h2>
+            <div id="previewContent"></div>
+        </div>
+
+        <div class="posts-list">
+            <h2>Instructions</h2>
+            <ol style="line-height: 1.8; padding-left: 1.5rem;">
+                <li>Fill in the form above to create a blog post</li>
+                <li>Click "Download Markdown File" to save the .md file</li>
+                <li>Place the downloaded file in the <code>content/</code> directory of your project</li>
+                <li>Commit and push to GitHub - the site will automatically rebuild!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('blogForm');
+        const alert = document.getElementById('alert');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const filename = document.getElementById('filename').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value;
+
+            // Create markdown content with title
+            const markdownContent = `# ${title}\n\n${content}`;
+
+            // Create blob and download
+            const blob = new Blob([markdownContent], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showAlert('File downloaded! Now add it to the content/ folder and push to GitHub.');
+        });
+
+        function showAlert(message) {
+            alert.textContent = message;
+            alert.className = 'alert success show';
+            setTimeout(() => {
+                alert.className = 'alert';
+            }, 5000);
+        }
+
+        function previewContent() {
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value;
+            const preview = document.getElementById('preview');
+            const previewContent = document.getElementById('previewContent');
+
+            // Simple markdown to HTML conversion for preview
+            let html = `<h1>${title}</h1>\n`;
+            html += simpleMarkdownToHTML(content);
+
+            previewContent.innerHTML = html;
+            preview.style.display = 'block';
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function simpleMarkdownToHTML(markdown) {
+            let html = markdown;
+
+            // Headers
+            html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+            // Bold and italic
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+            // Links
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+            // Code
+            html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+
+            // Line breaks
+            html = html.replace(/\n\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+
+            // Lists
+            html = html.replace(/^\- (.+)$/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+            return `<p>${html}</p>`;
+        }
+    </script>
+</body>
+</html>
