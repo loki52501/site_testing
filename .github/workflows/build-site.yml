@@ -21,6 +21,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y g++ make
+      - name: Clean output
+        run: rm -rf docs/*
 
       - name: Build site generator
         run: |
@@ -29,6 +31,9 @@ jobs:
 
       - name: Generate site
         run: ./site_generator
+
+      - name: List generated files
+        run: ls -la docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
