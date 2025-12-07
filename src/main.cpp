@@ -392,6 +392,18 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Copy CNAME file if it exists (for custom domain on GitHub Pages)
+    std::string cnameSource = "CNAME";
+    std::string cnameDest = "docs/CNAME";
+    if (fs::exists(cnameSource)) {
+        try {
+            fs::copy_file(cnameSource, cnameDest, fs::copy_options::overwrite_existing);
+            std::cout << "Copied: " << cnameDest << std::endl;
+        } catch (const fs::filesystem_error& e) {
+            std::cerr << "Error copying CNAME file: " << e.what() << std::endl;
+        }
+    }
+
     // Load cache
     std::map<std::string, CachedMetadata> cache = loadCache(cacheFile);
     std::map<std::string, CachedMetadata> newCache;
