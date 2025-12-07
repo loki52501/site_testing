@@ -26,7 +26,7 @@ If you’re hiring for teams working on **model training, serving, data/feature 
 
 A **C++17 static site generator** that converts Markdown → HTML and auto-builds this portfolio.
 
-- C++17, STL, `<filesystem>`, regex, CLI tooling  
+- C++17, STL, `\<filesystem\>`, regex, CLI tooling  
 - Markdown parser, HTML templating, auto-generated navigation  
 - GitHub Actions CI for **auto-deploy to GitHub Pages**
 
