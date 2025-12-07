@@ -12,7 +12,7 @@ Rather than chasing buzzwords, I am deliberately building:
 - **Strong fundamentals** in Python, C++, algorithms, and distributed systems
 - **Practical ML skills** in PyTorch and MLOps
 - **A security-informed mindset** for designing robust, failure-aware systems
-
+a
 
 ## My current focus
 
