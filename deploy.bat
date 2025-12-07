@@ -1,12 +1,10 @@
 
 @echo off
-REM Check if commit message provided
-if "%~1"=="" (
-    set "COMMIT_MSG=Deploy site"
-) else (
-    set "COMMIT_MSG=%~1"
-)
+REM %1= Check if commit message provided , %2= push repostiory
 
+set "COMMIT_MSG=%~1"
+set "PUSHN=%~2"
+if "%COMMIT_MSG%"=="" set "COMMIT_MSG=Deploy site"
 
 
 echo Building site...
