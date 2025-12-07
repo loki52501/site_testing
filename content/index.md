@@ -20,7 +20,6 @@ Right now I am:
 If you’re hiring for teams working on **model training, serving, data/feature platforms, or security for ML systems**, I’d like to talk.
 
 
-
 ## Flagship Projects
 
 ### Custom Static Site Generator (this site)
