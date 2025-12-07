@@ -10,7 +10,6 @@ Right now I am:
 - Sharpening **C++ / Python** and **data structures & algorithms** daily
 - Exploring **low-latency systems** and **trading-style architectures** as a backup path into quant
 
----
 
 ## What I’m looking for
 
@@ -20,11 +19,7 @@ Right now I am:
 
 If you’re hiring for teams working on **model training, serving, data/feature platforms, or security for ML systems**, I’d like to talk.
 
-- Email: `youremail@example.com`
-- GitHub: `https://github.com/your-username`
-- LinkedIn: `https://www.linkedin.com/in/your-handle`
 
----
 
 ## Flagship Projects
 
@@ -38,7 +33,6 @@ A **C++17 static site generator** that converts Markdown → HTML and auto-build
 
 [See details on the Projects page](/projects.html)
 
----
 
 ### ThreatLens (AI for Security)
 
@@ -48,7 +42,6 @@ End-to-end **intrusion / anomaly detection** pipeline:
 - Experimented with **LSTM / CNN**-style models on network-style data  
 - Focus on **throughput, latency, and deployment** rather than just accuracy
 
----
 
 ### AI Infrastructure Roadmap
 
@@ -58,8 +51,6 @@ A structured 4–6 month plan to grow from **cybersecurity + systems** to **AI i
 - Distributed systems (DDIA, MIT 6.824)  
 - ML system design & MLOps (MLflow, Ray, Kubernetes basics)  
 - Interview-focused DSA and system design practice
-
----
 
 ## Skills Snapshot
 
@@ -83,7 +74,6 @@ A structured 4–6 month plan to grow from **cybersecurity + systems** to **AI i
 - Cybersecurity foundations (network security mindset)  
 - Threat/anomaly detection framing, adversarial thinking
 
----
 
 ## Why this profile is a fit
 

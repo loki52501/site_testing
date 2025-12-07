@@ -4,45 +4,65 @@ The static site generator now supports **incremental builds** using content hash
 
 ## How It Works
 
-### Content Hashing
-Instead of relying on file modification timestamps (which change when files are copied or checked out from git), the system:
+### Two Detection Strategies
 
-1. **Calculates a hash** of each markdown file's content + template content
-2. **Stores the hash** in a `.build_cache` file along with metadata
-3. **Compares hashes** on subsequent builds to detect changes
-4. **Skips regeneration** if content hasn't changed
+The system uses **different change detection** for pages vs blog posts:
+
+**Regular Pages** (index.md, about.md, projects.md):
+- Uses **file modification time** for change detection
+- If you edit a page, the modification time changes → regenerates
+- Works perfectly for frequently updated pages
+- Fast comparison (no content hashing needed)
+
+**Blog Posts** (content/blog/*.md):
+- Uses **content hashing** for change detection
+- Preserves original publish dates even when file timestamps change
+- Works consistently across git checkouts and deployments
+- Essential for keeping blog dates stable on GitHub Actions
 
 ### Cache File Format
 
 The `.build_cache` file stores:
 ```
-filepath contentHash timestamp publishDate
+filepath contentHash timestamp fileModTime publishDate
 ```
 
 Example:
 ```
-content/blog/my-post.md 12345678 1638360000 December 01, 2021 at 10:30 AM
-content/index.md 87654321 0
+content/blog/my-post.md 12345678 1638360000 0 December 01, 2021 at 10:30 AM
+content/index.md 0 0 1709856000
 ```
+
+- **contentHash**: Hash of content+template (blogs only, 0 for pages)
+- **timestamp**: Publish timestamp (blogs only, 0 for pages)
+- **fileModTime**: File modification time (pages only, 0 for blogs)
+- **publishDate**: Human-readable date (blogs only, empty for pages)
 
 ## Key Features
 
-### ✅ Platform Independent
-- Works consistently on Windows, Linux, macOS, and GitHub Actions
-- Not affected by git checkout timestamps
-- Not affected by file system differences
+### ✅ Dual Detection Strategy
+- **Pages**: Use file modification time (detects edits immediately)
+- **Blogs**: Use content hashing (preserves publish dates)
+- Best of both worlds for different use cases
 
 ### ✅ Preserves Blog Publish Dates
 - **First build**: Uses file modification date as publish date
 - **Subsequent builds**: Preserves the original publish date from cache
 - **GitHub Actions**: Blog dates stay consistent across deployments
+- **Content changes**: Regenerates but keeps original date
 
-### ✅ Detects Template Changes
-- If `templates/template.html` changes, ALL pages rebuild (expected behavior)
-- Template hash is included in content comparison
+### ✅ Responsive to Page Edits
+- Edit index.md → File timestamp changes → Regenerates immediately
+- Edit about.md → File timestamp changes → Regenerates immediately
+- No content hashing overhead for frequently updated pages
+
+### ✅ Detects Template Changes (for blogs)
+- If `templates/template.html` changes, all BLOG posts rebuild
+- Pages always regenerate if their modification time changed
+- Smart detection prevents stale content
 
 ### ✅ Smart Skipping
-- Skips unchanged markdown files
+- Skips unchanged files based on appropriate detection method
 - Still reads metadata (for navigation)
 - Only runs expensive markdown→HTML conversion when needed
 

@@ -33,6 +33,7 @@ struct CachedMetadata {
     size_t contentHash;
     std::string publishDate;
     std::time_t timestamp;
+    std::time_t fileModTime;  // File modification time for change detection
 };
 
 std::string readFile(const std::string& filepath) {
@@ -150,8 +151,8 @@ std::map<std::string, CachedMetadata> loadCache(const std::string& cacheFile) {
             std::string filepath;
             CachedMetadata metadata;
 
-            // Read: filepath hash timestamp publishDate
-            ss >> filepath >> metadata.contentHash >> metadata.timestamp;
+            // Read: filepath hash timestamp fileModTime publishDate
+            ss >> filepath >> metadata.contentHash >> metadata.timestamp >> metadata.fileModTime;
 
             // Read the rest as publish date (may contain spaces)
             std::getline(ss, metadata.publishDate);
@@ -175,16 +176,37 @@ void saveCache(const std::string& cacheFile, const std::map<std::string, CachedM
             file << entry.first << " "
                  << entry.second.contentHash << " "
                  << entry.second.timestamp << " "
+                 << entry.second.fileModTime << " "
                  << entry.second.publishDate << "\n";
         }
         file.close();
     }
 }
 
-// Check if source file content has changed
-bool needsRegeneration(const std::string& sourcePath, const std::string& sourceContent,
-                       const std::string& outputPath, const std::string& templateHash,
-                       const std::map<std::string, CachedMetadata>& cache) {
+// Check if page needs regeneration based on file modification time
+bool needsPageRegeneration(const std::string& sourcePath, const std::string& outputPath,
+                           const std::map<std::string, CachedMetadata>& cache) {
+    // If output doesn't exist, needs regeneration
+    if (!fs::exists(outputPath)) {
+        return true;
+    }
+
+    // Get current file modification time
+    std::time_t currentModTime = getFileModificationTimestamp(sourcePath);
+
+    // Check if cached modification time exists and matches
+    auto it = cache.find(sourcePath);
+    if (it == cache.end() || it->second.fileModTime != currentModTime) {
+        return true; // File modified or no cache entry
+    }
+
+    return false; // File unchanged
+}
+
+// Check if blog post needs regeneration based on content hash
+bool needsBlogRegeneration(const std::string& sourcePath, const std::string& sourceContent,
+                           const std::string& outputPath, const std::string& templateHash,
+                           const std::map<std::string, CachedMetadata>& cache) {
     // If output doesn't exist, needs regeneration
     if (!fs::exists(outputPath)) {
         return true;
@@ -417,8 +439,8 @@ int main(int argc, char* argv[]) {
             page.title = title;
             page.outputPath = outputFilename;
 
-            // Check if regeneration is needed based on content hash
-            if (!needsRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+            // Check if regeneration is needed based on file modification time
+            if (!needsPageRegeneration(filepath, outputPath, cache)) {
                 std::cout << "Skipping (up-to-date): " << filename << std::endl;
                 skippedPages++;
                 // Keep metadata in new cache
@@ -428,11 +450,12 @@ int main(int argc, char* argv[]) {
                 std::string htmlContent = parser.convertToHTML(markdownContent);
                 page.content = htmlContent;
                 pagesToGenerate.push_back(page);
-                // Store new metadata (pages don't have dates)
+                // Store new metadata with file modification time
                 CachedMetadata metadata;
-                metadata.contentHash = hashString(markdownContent + templateHash);
+                metadata.contentHash = 0;  // Not used for pages
                 metadata.publishDate = "";
                 metadata.timestamp = 0;
+                metadata.fileModTime = getFileModificationTimestamp(filepath);
                 newCache[filepath] = metadata;
             }
 
@@ -482,8 +505,8 @@ int main(int argc, char* argv[]) {
                 post.publishDate = publishDate;
                 post.timestamp = timestamp;
 
-                // Check if regeneration is needed based on content hash
-                if (!needsRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+                // Check if regeneration is needed based on content hash (to preserve dates)
+                if (!needsBlogRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
                     std::cout << "Skipping (up-to-date): " << filename << std::endl;
                     skippedBlogs++;
                     // Keep metadata in new cache
@@ -498,6 +521,7 @@ int main(int argc, char* argv[]) {
                     metadata.contentHash = hashString(markdownContent + templateHash);
                     metadata.publishDate = publishDate;
                     metadata.timestamp = timestamp;
+                    metadata.fileModTime = 0;  // Not used for blogs
                     newCache[filepath] = metadata;
                 }
 
