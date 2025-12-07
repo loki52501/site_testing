@@ -65,6 +65,10 @@ desktop.ini
 *.temp
 *~
 
+# IMPORTANT: DO NOT ignore .build_cache
+# This file should be committed to enable incremental builds on GitHub Actions
+# !.build_cache
+
 # Package manager
 *.deb
 *.rpm

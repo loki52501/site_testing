@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ctime>
 #include <iomanip>
+#include <functional>
 #include "../include/markdown_parser.h"
 
 namespace fs = std::filesystem;
@@ -24,6 +25,12 @@ struct BlogPost {
     std::string content;
     std::string excerpt;
     std::string outputPath;
+    std::string publishDate;
+    std::time_t timestamp;
+};
+
+struct CachedMetadata {
+    size_t contentHash;
     std::string publishDate;
     std::time_t timestamp;
 };
@@ -125,6 +132,74 @@ std::time_t getFileModificationTimestamp(const std::string& filepath) {
         ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now()
     );
     return std::chrono::system_clock::to_time_t(sctp);
+}
+
+// Simple hash function for content
+size_t hashString(const std::string& str) {
+    return std::hash<std::string>{}(str);
+}
+
+// Load cache from file
+std::map<std::string, CachedMetadata> loadCache(const std::string& cacheFile) {
+    std::map<std::string, CachedMetadata> cache;
+    std::ifstream file(cacheFile);
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            std::stringstream ss(line);
+            std::string filepath;
+            CachedMetadata metadata;
+
+            // Read: filepath hash timestamp publishDate
+            ss >> filepath >> metadata.contentHash >> metadata.timestamp;
+
+            // Read the rest as publish date (may contain spaces)
+            std::getline(ss, metadata.publishDate);
+            // Trim leading space
+            if (!metadata.publishDate.empty() && metadata.publishDate[0] == ' ') {
+                metadata.publishDate = metadata.publishDate.substr(1);
+            }
+
+            cache[filepath] = metadata;
+        }
+        file.close();
+    }
+    return cache;
+}
+
+// Save cache to file
+void saveCache(const std::string& cacheFile, const std::map<std::string, CachedMetadata>& cache) {
+    std::ofstream file(cacheFile);
+    if (file.is_open()) {
+        for (const auto& entry : cache) {
+            file << entry.first << " "
+                 << entry.second.contentHash << " "
+                 << entry.second.timestamp << " "
+                 << entry.second.publishDate << "\n";
+        }
+        file.close();
+    }
+}
+
+// Check if source file content has changed
+bool needsRegeneration(const std::string& sourcePath, const std::string& sourceContent,
+                       const std::string& outputPath, const std::string& templateHash,
+                       const std::map<std::string, CachedMetadata>& cache) {
+    // If output doesn't exist, needs regeneration
+    if (!fs::exists(outputPath)) {
+        return true;
+    }
+
+    // Calculate hash of current content
+    size_t currentHash = hashString(sourceContent + templateHash);
+
+    // Check if cached hash exists and matches
+    auto it = cache.find(sourcePath);
+    if (it == cache.end() || it->second.contentHash != currentHash) {
+        return true; // Content changed or no cache entry
+    }
+
+    return false; // Content unchanged
 }
 
 std::string applyTemplate(const std::string& templateContent, const std::string& title,
@@ -258,6 +333,7 @@ int main(int argc, char* argv[]) {
     std::string templatePath = "templates/template.html";
     std::string cssSourcePath = "templates/style.css";
     std::string cssOutputPath = "docs/style.css";
+    std::string cacheFile = ".build_cache";
 
     // Create output directories if they don't exist
     if (!fs::exists(outputDir)) {
@@ -294,6 +370,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Load cache
+    std::map<std::string, CachedMetadata> cache = loadCache(cacheFile);
+    std::map<std::string, CachedMetadata> newCache;
+
     // Read template
     std::string templateContent = readFile(templatePath);
     if (templateContent.empty()) {
@@ -301,9 +381,16 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Hash template content for change detection
+    std::string templateHash = std::to_string(hashString(templateContent));
+
     MarkdownParser parser;
     std::vector<Page> pages;
     std::vector<BlogPost> blogPosts;
+
+    // Track which files need regeneration
+    std::vector<Page> pagesToGenerate;
+    int skippedPages = 0;
 
     // Process regular pages (not in blog directory)
     for (const auto& entry : fs::directory_iterator(contentDir)) {
@@ -315,34 +402,54 @@ int main(int argc, char* argv[]) {
             std::string filepath = entry.path().string();
             std::string filename = entry.path().filename().string();
             std::string outputFilename = entry.path().stem().string() + ".html";
+            std::string outputPath = outputDir + "/" + outputFilename;
 
-            std::cout << "Processing page: " << filename << std::endl;
-
+            // Always read for metadata (needed for navigation)
             std::string markdownContent = readFile(filepath);
-            if (!markdownContent.empty()) {
-          
+            if (markdownContent.empty()) {
+                continue;
+            }
 
             std::string title = extractTitle(markdownContent);
-            std::string htmlContent = parser.convertToHTML(markdownContent);
 
             Page page;
             page.filename = filename;
             page.title = title;
-            page.content = htmlContent;
             page.outputPath = outputFilename;
+
+            // Check if regeneration is needed based on content hash
+            if (!needsRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+                std::cout << "Skipping (up-to-date): " << filename << std::endl;
+                skippedPages++;
+                // Keep metadata in new cache
+                newCache[filepath] = cache[filepath];
+            } else {
+                std::cout << "Processing page: " << filename << std::endl;
+                std::string htmlContent = parser.convertToHTML(markdownContent);
+                page.content = htmlContent;
+                pagesToGenerate.push_back(page);
+                // Store new metadata (pages don't have dates)
+                CachedMetadata metadata;
+                metadata.contentHash = hashString(markdownContent + templateHash);
+                metadata.publishDate = "";
+                metadata.timestamp = 0;
+                newCache[filepath] = metadata;
+            }
+
             pages.push_back(page);
-        }}
+        }
     }
 
     // Process blog posts
+    std::vector<BlogPost> blogsToGenerate;
+    int skippedBlogs = 0;
     if (fs::exists(blogDir)) {
         for (const auto& entry : fs::directory_iterator(blogDir)) {
             if (entry.path().extension() == ".md") {
                 std::string filepath = entry.path().string();
                 std::string filename = entry.path().filename().string();
                 std::string outputFilename = entry.path().stem().string() + ".html";
-
-                std::cout << "Processing blog: " << filename << std::endl;
+                std::string outputPath = blogOutputDir + "/" + outputFilename;
 
                 std::string markdownContent = readFile(filepath);
                 if (markdownContent.empty()) {
@@ -351,18 +458,49 @@ int main(int argc, char* argv[]) {
 
                 std::string title = extractTitle(markdownContent);
                 std::string excerpt = extractExcerpt(markdownContent);
-                std::string htmlContent = parser.convertToHTML(markdownContent);
-                std::string publishDate = getFileModificationDate(filepath);
-                std::time_t timestamp = getFileModificationTimestamp(filepath);
+
+                // Use cached date if available, otherwise get from file system
+                std::string publishDate;
+                std::time_t timestamp;
+
+                auto cachedIt = cache.find(filepath);
+                if (cachedIt != cache.end() && !cachedIt->second.publishDate.empty()) {
+                    // Use cached date (preserves original publish date)
+                    publishDate = cachedIt->second.publishDate;
+                    timestamp = cachedIt->second.timestamp;
+                } else {
+                    // First time seeing this file, get date from file system
+                    publishDate = getFileModificationDate(filepath);
+                    timestamp = getFileModificationTimestamp(filepath);
+                }
 
                 BlogPost post;
                 post.filename = filename;
                 post.title = title;
-                post.content = htmlContent;
                 post.excerpt = excerpt;
                 post.outputPath = outputFilename;
                 post.publishDate = publishDate;
                 post.timestamp = timestamp;
+
+                // Check if regeneration is needed based on content hash
+                if (!needsRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+                    std::cout << "Skipping (up-to-date): " << filename << std::endl;
+                    skippedBlogs++;
+                    // Keep metadata in new cache
+                    newCache[filepath] = cache[filepath];
+                } else {
+                    std::cout << "Processing blog: " << filename << std::endl;
+                    std::string htmlContent = parser.convertToHTML(markdownContent);
+                    post.content = htmlContent;
+                    blogsToGenerate.push_back(post);
+                    // Store new metadata with preserved date
+                    CachedMetadata metadata;
+                    metadata.contentHash = hashString(markdownContent + templateHash);
+                    metadata.publishDate = publishDate;
+                    metadata.timestamp = timestamp;
+                    newCache[filepath] = metadata;
+                }
+
                 blogPosts.push_back(post);
             }
         }
@@ -394,23 +532,33 @@ int main(int argc, char* argv[]) {
         pages.push_back(blogIndexPage);
     }
 
-    // Generate HTML files for regular pages
-    for (const auto& page : pages) {
+    // Generate HTML files only for pages that need updating
+    for (const auto& page : pagesToGenerate) {
         std::string finalHtml = applyTemplate(templateContent, page.title, page.content, pages);
         std::string outputPath = outputDir + "/" + page.outputPath;
         writeFile(outputPath, finalHtml);
     }
 
-    // Generate HTML files for blog posts
-    for (const auto& post : blogPosts) {
+    // Generate HTML files only for blog posts that need updating
+    for (const auto& post : blogsToGenerate) {
         std::string finalHtml = applyTemplate(templateContent, post.title, post.content, pages, true);
         std::string outputPath = blogOutputDir + "/" + post.outputPath;
         writeFile(outputPath, finalHtml);
     }
 
+    // Save cache for next build
+    saveCache(cacheFile, newCache);
+
     std::cout << "\n=== Site generation complete! ===" << std::endl;
-    std::cout << "Generated " << pages.size() << " pages and " << blogPosts.size()
-              << " blog posts in '" << outputDir << "' directory" << std::endl;
+    std::cout << "Processed " << pages.size() << " pages (" << pagesToGenerate.size() << " generated, "
+              << skippedPages << " skipped)" << std::endl;
+    std::cout << "Processed " << blogPosts.size() << " blog posts (" << blogsToGenerate.size() << " generated, "
+              << skippedBlogs << " skipped)" << std::endl;
+
+    if (skippedPages > 0 || skippedBlogs > 0) {
+        std::cout << "\nIncremental build saved time by skipping " << (skippedPages + skippedBlogs)
+                  << " up-to-date files!" << std::endl;
+    }
 
     return 0;
 }
