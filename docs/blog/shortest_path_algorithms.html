@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortest path algorithms - My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="../index.html">Home</a><a href="../about.html">About</a><a href="../projects.html">Projects</a><a href="../blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <h1>Shortest path algorithms</h1>
+<p>Dijkstra Algorithm , bellman ford algorithm and floyd warshall algorithm</p>
+<h1>Dijkstra Algorithm</h1>
+<ol>
+  <li>we are gonna look at Dijkstra Algorithm:</li>
+</ol>
+<p>this algorithm gives us a pathway to find the shortest path provided there are no negative weights between source and destination. I could use a diagram to show you this.</p>
+<p><img src="../images/shortest%20path.jpg" alt="shortest path.jpg"></p>
+<p>we are going to visit each node and see if there is a shortest path from jack’s place to new york using Dijkstra’s algorithm. </p>
+<p>we will be traversing each node and see the shortest path to the next node or to the destination.</p>
+<p>the iteration starts from jack’s place and his adjacent nodes,</p>
+<p>jack’s place value is initialized to zero.</p>
+<p>we will check if u(i)+weight<\v , where i is the current value of the path, and weight is the value from that path to v, where v is the destination. if there is a v already and if the current weight path is lesser than that, then v needs to be updated, as shortest path to v. we will track each node via visited boolean variable, that keeps track of each node, if it was visited or not.</p>
+<h1>First Iteration</h1>
+<ol>
+  <li>when we start, u1 will be jack, and from his place, we will calculate all the possible destinations and it's weights. initally all values will be assigned infinity, if there is a value already, we will compare it with the new value and if it is small then we will replace. there will be a visited variable which tracks all the values we have visited. so the visited of jacks place is set to true in the first iteration.</li>
+</ol>
+<table>
+  <thead>
+    <tr>
+      <th>possible v value</th>
+      <th>philly</th>
+      <th>sometown</th>
+      <th>new jersey</th>
+      <th>nyc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>u1</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td>inf</td>
+      <td>inf</td>
+      <td>26</td>
+    </tr>
+  </tbody>
+</table>
+<h1>Second iteration</h1>
+<ol>
+  <li>In second iteration we know the values that we got from the first iteration, the next path that will be choosen here is the shortest path from u1, i.e philly, so u2, will be philly, from u2 we will figure out all the possible values . philly will be marked as visited, so that there is no need to visit philly again.</li>
+</ol>
+<table>
+  <thead>
+    <tr>
+      <th>possible v value</th>
+      <th>philly</th>
+      <th>sometown</th>
+      <th>new jersey</th>
+      <th>nyc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>u1</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td>inf</td>
+      <td>inf</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>u2</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #FFD700;">14</span></td>
+      <td><span style="background-color: #FFD700;">13</span></td>
+      <td>26</td>
+    </tr>
+  </tbody>
+</table>
+<h1>Third iteration</h1>
+<ol>
+  <li>In third iteration, we will chose our u3 value as new jersey, as it is shortest from philly, and it will be marked as visited. now we will calculate the shortest values, by the if condition(u2+weight<\v) where u3=u2+weight, and v is the preexisting value at the destination.</li>
+</ol>
+<table>
+  <thead>
+    <tr>
+      <th>possible v value</th>
+      <th>philly</th>
+      <th>sometown</th>
+      <th>new jersey</th>
+      <th>nyc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>u1</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td>inf</td>
+      <td>inf</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>u2</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #FFD700;">14</span></td>
+      <td><span style="background-color: #FFD700;">13</span></td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>u3</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #90EE90;">14</span></td>
+      <td><span style="background-color: #90EE90;">13</span></td>
+      <td><span style="background-color: #FFD700;">17</span></td>
+    </tr>
+  </tbody>
+</table>
+<p>nyc value gets update as the previous value is larger than the current weight value. </p>
+<h1>Fourth Iteration</h1>
+<p>since sometown hasn't been visited yet, we go to sometown, with it's current path value of 14, and will be marked as visited.</p>
+<table>
+  <thead>
+    <tr>
+      <th>possible v value</th>
+      <th>philly</th>
+      <th>sometown</th>
+      <th>new jersey</th>
+      <th>nyc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>u1</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td>inf</td>
+      <td>inf</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>u2</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #FFD700;">14</span></td>
+      <td><span style="background-color: #FFD700;">13</span></td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>u3</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #90EE90;">14</span></td>
+      <td><span style="background-color: #90EE90;">13</span></td>
+      <td><span style="background-color: #FFD700;">17</span></td>
+    </tr>
+    <tr>
+      <td>u4</td>
+      <td><span style="background-color: #90EE90;">5</span></td>
+      <td><span style="background-color: #90EE90;">14</span></td>
+      <td><span style="background-color: #90EE90;">13</span></td>
+      <td><span style="background-color: #FFD700;">16</span></td>
+    </tr>
+  </tbody>
+</table>
+<p>Here nyc value gets update as there is a shortest path from sometown . </p>
+<h1>Bellman Ford Algorithm</h1>
+<p>This algorithm is similar to that of dijkstra. but bellman ford helps detecting negative cycles. bellman ford, doesn't keep track of visited nodes, rather.</p>
+
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/loki52501" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:lokeshlks01@gmail.com">Email</a>
+            <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        </div>
+        <p>&copy; 2025 Lokesh L K S Site.  A orginal</p>
+    </footer>
+</body>
+</html>

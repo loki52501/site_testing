@@ -566,6 +566,7 @@ int main(int argc, char* argv[]) {
         }
 
         pages.push_back(blogIndexPage);
+        pagesToGenerate.push_back(blogIndexPage);  // Add to generation queue
     }
 
     // Generate HTML files only for pages that need updating

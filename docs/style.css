@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     line-height: 1.8;
     color: #1e293b;
     background: #ffffff;
@@ -31,7 +31,7 @@ nav .container {
 }
 
 nav a {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     color: #64748b;
     text-decoration: none;
     font-weight: 500;
@@ -56,7 +56,7 @@ main {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.05em;
@@ -173,7 +173,7 @@ footer {
 }
 
 .social-links a {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     color: #64748b;
     text-decoration: none;
     font-size: 0.875rem;
@@ -231,7 +231,7 @@ footer p {
 }
 
 .blog-date {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     color: #94a3b8;
     font-size: 0.813rem;
     margin: 0;
@@ -248,7 +248,7 @@ footer p {
 }
 
 .read-more {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     display: inline-block;
     margin-top: 1rem;
     color: #2563eb;
@@ -282,7 +282,7 @@ footer p {
 }
 
 .pagination-btn {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     display: inline-block;
     padding: 0.75rem 1.5rem;
     color: #2563eb;
@@ -315,7 +315,7 @@ footer p {
 }
 
 .page-number {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -365,7 +365,7 @@ table td {
 }
 
 table th {
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-weight: 600;
     color: #0f172a;
     font-size: 0.875rem;
