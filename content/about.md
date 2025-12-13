@@ -4,15 +4,13 @@
 
 I am an early-career engineer with a background in **cybersecurity** and a long-term goal to work on:
 
-1. **AI infrastructure / ML systems** (primary), and  
-2. **Quantitative / trading-style systems** (secondary).
+1. **AI infrastructure / ML systems** 
 
 Rather than chasing buzzwords, I am deliberately building:
 
 - **Strong fundamentals** in Python, C++, algorithms, and distributed systems
 - **Practical ML skills** in PyTorch and MLOps
 - **A security-informed mindset** for designing robust, failure-aware systems
-a
 
 ## My current focus
 
@@ -47,30 +45,9 @@ This perspective is especially relevant for:
 - **Mission-critical ML** where reliability matters as much as accuracy
 
 
-### 3. Quant-leaning Backup Path
-
-As a secondary trajectory, I am exploring:
-
-- **Low-latency systems & networking**  
-- **Probability / statistics / expected value** problems  
-- Architectures used by **trading firms and exchanges** (market data, order matching, risk systems)
-
-This is not a hobby; it is a deliberate hedge in case the best-fit opportunities arise in **quant / trading infrastructure** rather than “traditional” tech.
-
 
 ## How I work
 
 - **Plan-driven:** I follow a written, time-bounded roadmap instead of jumping randomly between topics.  
 - **Project-first:** I anchor learning in **concrete projects** (e.g., ThreatLens, static site generator) rather than pure theory.  
 - **Feedback-seeking:** I iterate based on feedback from instructors, peers, and real interview-style problems.
-
-
-## What I want next
-
-I am looking for opportunities where I can:
-
-- Work on **training, serving, or data platforms for ML**  
-- Contribute to systems that require **performance + reliability**  
-- Use my **security background** to improve robustness and safety of ML-powered products
-
-If that sounds like your team, please see my Projects and reach out.

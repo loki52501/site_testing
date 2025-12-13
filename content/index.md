@@ -1,23 +1,32 @@
 <!-- content/index.md -->
 
-# Lokesh LKS — AI Infrastructure, Security & Quant-leaning Engineer
+# Lokesh LKS — Software Architect & Systems Programmer
 
-I design and build systems at the intersection of **AI infrastructure**, **distributed systems**, and **security**, with a secondary interest in **quantitative finance**.
+I design and build large-scale systems. My work spans **cloud infrastructure**, **C++ systems programming**, **ML pipelines**, and **security engineering**, with a current focus on **LLM security** and **Linux hardening**.
 
-Right now I am:
+I keep my algorithms sharp through daily competitive programming and maintain a strong grasp of distributed systems fundamentals.
 
-- Executing a focused roadmap in **PyTorch**, **distributed systems**, and **ML system design** to move into AI infrastructure / ML platform roles:contentReference[oaicite:0]{index=0}  
-- Sharpening **C++ / Python** and **data structures & algorithms** daily
-- Exploring **low-latency systems** and **trading-style architectures** as a backup path into quant
+## What I Do Daily
 
+- Architect systems for scale, reliability, and performance
+- Write production C++ for performance-critical components
+- Build and secure cloud infrastructure
+- Deploy ML systems from training to production
+- Harden Linux environments and secure LLM deployments
+- Grind DSA and competitive programming problems
+- Ship side projects that solve real problems
 
-## What I’m looking for
+## Looking For
 
-- **Roles:** AI Infrastructure / ML Systems Engineer, Platform ML Engineer, Security-focused ML Engineer  
-- **Secondary path:** Quantitative developer / research engineer roles with strong systems + math focus  
-- **Timeline:** Internships and early-career roles aligned with a 2026 start
+Roles where I can apply systems thinking and security-first design:
 
-If you’re hiring for teams working on **model training, serving, data/feature platforms, or security for ML systems**, I’d like to talk.
+- Software Architect / Principal Engineer
+- Cloud Infrastructure Engineer
+- C++ Systems Engineer
+- ML Infrastructure / Security Engineer
+- Backend Engineer (distributed systems)
+
+If you're building production systems at scale and care about performance and security, let's talk.
 
 
 ## Flagship Projects
@@ -42,42 +51,42 @@ End-to-end **intrusion / anomaly detection** pipeline:
 - Focus on **throughput, latency, and deployment** rather than just accuracy
 
 
-### AI Infrastructure Roadmap
+## Technical Skills
 
-A structured 4–6 month plan to grow from **cybersecurity + systems** to **AI infra engineer**, covering:
+**Core Programming**
 
-- PyTorch + ML fundamentals  
-- Distributed systems (DDIA, MIT 6.824)  
-- ML system design & MLOps (MLflow, Ray, Kubernetes basics)  
-- Interview-focused DSA and system design practice
+- **C++** (17/20): Systems programming, performance optimization, STL, templates
+- **Python**: ML pipelines, automation, scripting
+- **SQL**: Query optimization, database design
 
-## Skills Snapshot
+**Cloud & Infrastructure**
 
-**Languages**
+- Cloud platforms (AWS/GCP/Azure)
+- Distributed systems design (replication, partitioning, consensus)
+- Docker, Kubernetes basics
+- Linux systems programming and hardening
 
-- C++, Python, SQL, basic Bash
+**Machine Learning & Security**
 
-**Systems & Infra**
+- PyTorch, TensorFlow
+- ML system architecture (training → serving → monitoring)
+- LLM security: prompt injection defense, output filtering, secure model serving
+- MLOps, experiment tracking, pipeline orchestration
+- NumPy, Pandas, data processing at scale
 
-- Linux, networking basics, Docker  
-- Distributed systems fundamentals (replication, partitioning, CAP trade-offs)
+**Daily Practice**
 
-**ML & Data**
-
-- PyTorch, NumPy, Pandas  
-- ML system design (training → serving → monitoring)  
-- Experiment tracking, reproducible pipelines
-
-**Security**
-
-- Cybersecurity foundations (network security mindset)  
-- Threat/anomaly detection framing, adversarial thinking
+- **Data Structures & Algorithms**: Daily competitive programming
+- System design patterns and trade-offs
+- Code review and software craftsmanship
 
 
-## Why this profile is a fit
+## Why Work With Me
 
-- **Systems + security DNA:** I naturally think about **failure modes, adversaries, and robustness**, which maps well to production ML systems and fraud/security use cases.
-- **AI infra trajectory:** My plan is explicitly optimized for **AI infra / ML platform roles**, not generic “ML engineer” work.
-- **Quant-leaning:** Strong interest in **low-latency, data-heavy systems**, relevant to trading, market data infrastructure, and risk systems.
+- **Architectural mindset**: I design systems that scale, not just code that works
+- **Performance-focused**: C++ background drives efficiency thinking across all work
+- **Full-stack systems**: From cloud infrastructure to ML pipelines to production deployment
+- **Continuous learner**: Daily DSA practice keeps algorithms sharp, side projects keep skills current
+- **Production-ready**: I build for reliability, maintainability, and long-term success
 
-If this aligns with your team’s work, reach out — I’m building for exactly this niche.
+If you're building the kind of systems that challenge conventional limits, I want to be part of your team.
