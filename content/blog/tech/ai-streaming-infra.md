@@ -1,7 +1,7 @@
 # AI-Driven Streaming Infra: Keeping Playback Smooth
 *Published on 2025-11-20*
 
-I built an adaptive streaming platform that uses AI-based bitrate prediction to reduce buffering when networks fluctuate.
+I built an adaptive streaming platform that uses AI-based bitrate prediction to reduce buffering when networks fluctuate. This was amazing.
 
 ## Stack
 - Python + FastAPI on AWS EC2

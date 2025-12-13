@@ -54,6 +54,13 @@ main {
     min-height: 70vh;
 }
 
+/* Override main max-width when it contains blog-container */
+main:has(.blog-container) {
+    max-width: 1200px;
+    padding: 0;
+    margin: 0 auto;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
@@ -193,6 +200,82 @@ footer p {
     color: #94a3b8;
 }
 
+/* Blog Layout with Sidebar */
+.blog-container {
+    display: flex;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 5rem auto;
+    padding: 0 2rem;
+}
+
+.blog-content {
+    flex: 1;
+    min-width: 0;
+    order: 2;
+}
+
+.blog-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    order: 1;
+}
+
+.sidebar-menu {
+    position: sticky;
+    top: 2rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.sidebar-menu h3 {
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+    color: #64748b;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin: 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #64748b;
+    text-decoration: none;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    margin-left: -1.5rem;
+    padding-left: calc(1rem + 1.5rem);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.sidebar-menu a:hover {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-left-color: #2563eb;
+}
+
+.sidebar-menu a.active {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-left-color: #2563eb;
+    font-weight: 600;
+}
+
 /* Blog Listing */
 .blog-list {
     margin-top: 4rem;
@@ -201,6 +284,7 @@ footer p {
 .blog-item {
     padding: 3rem 0;
     border-bottom: 1px solid #e2e8f0;
+    position: relative;
 }
 
 .blog-item:first-child {
@@ -217,6 +301,37 @@ footer p {
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+}
+
+/* Category Badge */
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    border: 1px solid;
+}
+
+.category-tech {
+    color: #1e40af;
+    background-color: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.category-movies {
+    color: #7c2d12;
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+}
+
+.category-random {
+    color: #065f46;
+    background-color: #f0fdf4;
+    border-color: #86efac;
 }
 
 .blog-item h2 a {
@@ -455,5 +570,23 @@ table tbody tr:hover {
     table th,
     table td {
         padding: 0.75rem 1rem;
+    }
+
+    .blog-container {
+        flex-direction: column;
+        margin: 3rem auto;
+    }
+
+    .blog-sidebar {
+        width: 100%;
+        order: -1;
+    }
+
+    .sidebar-menu {
+        position: static;
+    }
+
+    .sidebar-menu h3 {
+        font-size: 0.75rem;
     }
 }

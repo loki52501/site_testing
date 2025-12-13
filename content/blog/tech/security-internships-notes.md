@@ -2,7 +2,7 @@
 *Published on 2025-10-15*
 
 Highlights across identity, cloud security, and network detection work.
-
+All lead to choosing my cybersecurity career. 
 ## Identity Automation (iMerit)
 - Automated onboarding/offboarding across Ivanti, Google Workspace, and AD; cut access errors and ~60% onboarding time.
 - Standardized RBAC via Python + REST pipelines.

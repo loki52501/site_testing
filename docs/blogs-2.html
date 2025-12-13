@@ -17,41 +17,42 @@
     </nav>
 
     <main>
-        <h1>Blog Posts</h1>
-<p>Welcome to my blog. Here are all my posts:</p>
+        <div class="blog-container">
+    <aside class="blog-sidebar">
+        <nav class="sidebar-menu">
+            <h3>Categories</h3>
+            <ul>
+                <li><a href="blogs.html" class="active">All Posts</a></li>
+                <li><a href="tech.html">Tech</a></li>
+                <li><a href="movies.html">Movies</a></li>
+                <li><a href="random.html">Thoughtful</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <div class="blog-content">
+        <h1>All Posts</h1>
+        <p>All my blog posts</p>
 
-<div class="blog-list">
-    <article class="blog-item">
-        <h2><a href="blog/quic-protocol-optimizations.html">QUIC Transport Optimizations from a Reimplementation</a></h2>
-        <p class="blog-date">Published on December 06, 2025 at 04:03 PM</p>
-        <p class="blog-excerpt"># QUIC Transport Optimizations from a Reimplementation *Published on 2025-12-05*</p>
-        <a href="blog/quic-protocol-optimizations.html" class="read-more">Read more →</a>
-    </article>
-    <article class="blog-item">
-        <h2><a href="blog/wip.html">work in progress</a></h2>
-        <p class="blog-date">Published on December 06, 2025 at 03:09 PM</p>
-        <p class="blog-excerpt"># work in progress</p>
-        <a href="blog/wip.html" class="read-more">Read more →</a>
-    </article>
-    <article class="blog-item">
-        <h2><a href="blog/something.html">left best said</a></h2>
-        <p class="blog-date">Published on December 06, 2025 at 03:06 PM</p>
-        <p class="blog-excerpt"># left best said</p>
-        <a href="blog/something.html" class="read-more">Read more →</a>
-    </article>
-    <article class="blog-item">
-        <h2><a href="blog/table-test.html">Testing Table Support</a></h2>
-        <p class="blog-date">Published on December 06, 2025 at 02:39 PM</p>
-        <p class="blog-excerpt"># Testing Table Support</p>
-        <a href="blog/table-test.html" class="read-more">Read more →</a>
-    </article>
-    <article class="blog-item">
-        <h2><a href="blog/sample-post.html">Sample Blog Post</a></h2>
-        <p class="blog-date">Published on December 06, 2025 at 02:31 PM</p>
-        <p class="blog-excerpt"># Sample Blog Post</p>
-        <a href="blog/sample-post.html" class="read-more">Read more →</a>
-    </article>
-</div>
+        <div class="blog-list">
+            <article class="blog-item">
+                <span class="category-badge category-tech">Tech</span>
+                <h2><a href="blog/tech/shortest_path_algorithms.html">Shortest path algorithms</a></h2>
+                <p class="blog-date">Published on December 13, 2025 at 03:45 PM</p>
+                <p class="blog-excerpt"><ol>
+  <li>we are gonna look at Dijkstra Algorithm: this algorithm gives us a pathway to find the shortest path provided there are no negative weights between source and destination. I could use a diagram to...</li>
+</ol>
+</p>
+                <a href="blog/tech/shortest_path_algorithms.html" class="read-more">Read more →</a>
+            </article>
+            <article class="blog-item">
+                <span class="category-badge category-tech">Tech</span>
+                <h2><a href="blog/tech/security-internships-notes.html">Notes from Security Internships</a></h2>
+                <p class="blog-date">Published on December 13, 2025 at 03:39 PM</p>
+                <p class="blog-excerpt"><p>Highlights across identity, cloud security, and network detection work. All lead to choosing my cybersecurity career.  - Automated onboarding/offboarding across Ivanti, Google Workspace, and AD; cut...</p>
+</p>
+                <a href="blog/tech/security-internships-notes.html" class="read-more">Read more →</a>
+            </article>
+        </div>
 
 <nav class="pagination">
     <a href="blogs.html" class="pagination-btn">&larr; Previous</a>
@@ -61,6 +62,8 @@
     </div>
     <span class="pagination-btn disabled">Next &rarr;</span>
 </nav>
+    </div>
+</div>
 
     </main>
 
@@ -70,7 +73,7 @@
             <a href="mailto:lokeshlks01@gmail.com">Email</a>
             <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
         </div>
-        <p>&copy; 2025 Lokesh L K S Site.  A orginal</p>
+        <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
     </footer>
 </body>
 </html>

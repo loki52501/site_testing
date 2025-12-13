@@ -27,6 +27,7 @@ struct BlogPost {
     std::string outputPath;
     std::string publishDate;
     std::time_t timestamp;
+    std::string category;  // tech, movies, or random
 };
 
 struct CachedMetadata {
@@ -77,31 +78,39 @@ std::string extractExcerpt(const std::string& markdown, size_t maxLength = 200) 
     std::stringstream ss(markdown);
     std::string line;
     std::string excerpt;
-    bool foundFirstParagraph = false;
+    bool skippedHeader = false;
+    bool skippedSecondLine = false;
 
     while (std::getline(ss, line)) {
-        // Skip empty lines and headings
-        if (!line.empty() || !(line.length() > 0 && line[0] == '#')) {
-      
+        // Skip lines starting with # (headers)
+        if (!line.empty() && line[0] == '#') {
+            skippedHeader = true;
+            continue;
+        }
 
-        // Accumulate paragraph text
-        if (!line.empty()) {
-            if (!excerpt.empty()) {
-                excerpt += " ";
-            }
-            excerpt += line;
-            foundFirstParagraph = true;
+        // Skip empty lines before we find content
+        if (line.empty()) {
+            continue;
+        }
 
-            // Stop if we have enough text
-            if (excerpt.length() >= maxLength) {
-                break;
-            }
-        } else if (foundFirstParagraph) {
-            // Stop at the end of the first paragraph
+        // Skip the second line (first non-empty line after header)
+        if (skippedHeader && !skippedSecondLine) {
+            skippedSecondLine = true;
+            continue;
+        }
+
+        // Now accumulate paragraph text
+        if (!excerpt.empty()) {
+            excerpt += " ";
+        }
+        excerpt += line;
+
+        // Stop if we have enough text
+        if (excerpt.length() >= maxLength) {
             break;
         }
     }
-    }
+
     // Truncate to maxLength and add ellipsis if needed
     if (excerpt.length() > maxLength) {
         excerpt = excerpt.substr(0, maxLength);
@@ -225,7 +234,7 @@ bool needsBlogRegeneration(const std::string& sourcePath, const std::string& sou
 }
 
 std::string applyTemplate(const std::string& templateContent, const std::string& title,
-                          const std::string& content, const std::vector<Page>& pages, bool isInSubdirectory = false) {
+                          const std::string& content, const std::vector<Page>& pages, int subdirectoryDepth = 0) {
     std::string result = templateContent;
 
     // Replace title placeholder
@@ -241,8 +250,11 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
         result.replace(pos, 11, content);
     }
 
-    // Replace CSS path placeholder
-    std::string cssPath = isInSubdirectory ? "../" : "";
+    // Replace CSS path placeholder - handle different subdirectory depths
+    std::string cssPath = "";
+    for (int i = 0; i < subdirectoryDepth; i++) {
+        cssPath += "../";
+    }
     pos = result.find("{{CSS_PATH}}");
     while (pos != std::string::npos) {
         result.replace(pos, 12, cssPath);
@@ -253,8 +265,11 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
     std::stringstream nav;
 
     // Define navigation items (path, display name)
-    // Adjust paths based on whether we're in a subdirectory
-    std::string pathPrefix = isInSubdirectory ? "../" : "";
+    // Adjust paths based on subdirectory depth
+    std::string pathPrefix = "";
+    for (int i = 0; i < subdirectoryDepth; i++) {
+        pathPrefix += "../";
+    }
     std::vector<std::pair<std::string, std::string>> navItems = {
         {pathPrefix + "index.html", "Home"},
         {pathPrefix + "about.html", "About"},
@@ -274,7 +289,7 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
     return result;
 }
 
-std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int pageNum, int postsPerPage) {
+std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int pageNum, int postsPerPage, const std::string& category = "") {
     std::stringstream html;
 
     // Calculate pagination
@@ -283,35 +298,77 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
     int startIdx = (pageNum - 1) * postsPerPage;
     int endIdx = std::min(startIdx + postsPerPage, totalPosts);
 
-    html << "<h1>Blog Posts</h1>\n";
-    html << "<p>Welcome to my blog. Here are all my posts:</p>\n\n";
-    html << "<div class=\"blog-list\">\n";
+    // Category-specific titles
+    std::string categoryTitle = category.empty() ? "All Posts" :
+                                (category == "tech" ? "Tech Blog" :
+                                 category == "movies" ? "Movie Reviews" : "Random Thoughts");
 
-    // Show posts for current page
-    for (int i = startIdx; i < endIdx; i++) {
-        const auto& post = blogPosts[i];
-        html << "    <article class=\"blog-item\">\n";
-        html << "        <h2><a href=\"blog/" << post.outputPath << "\">" << post.title << "</a></h2>\n";
-        html << "        <p class=\"blog-date\">Published on " << post.publishDate << "</p>\n";
+    std::string categoryDesc = category.empty() ? "All my blog posts" :
+                               (category == "tech" ? "Technology, programming, and software development" :
+                                category == "movies" ? "Movie reviews, analysis, and recommendations" :
+                                "Random musings and miscellaneous topics");
 
-        // Add excerpt if available
-        if (!post.excerpt.empty()) {
-            html << "        <p class=\"blog-excerpt\">" << post.excerpt << "</p>\n";
+    // Start blog container with sidebar
+    html << "<div class=\"blog-container\">\n";
+
+    // Sidebar
+    html << "    <aside class=\"blog-sidebar\">\n";
+    html << "        <nav class=\"sidebar-menu\">\n";
+    html << "            <h3>Categories</h3>\n";
+    html << "            <ul>\n";
+    html << "                <li><a href=\"blogs.html\"" << (category.empty() ? " class=\"active\"" : "") << ">All Posts</a></li>\n";
+    html << "                <li><a href=\"tech.html\"" << (category == "tech" ? " class=\"active\"" : "") << ">Tech</a></li>\n";
+    html << "                <li><a href=\"movies.html\"" << (category == "movies" ? " class=\"active\"" : "") << ">Movies</a></li>\n";
+    html << "                <li><a href=\"random.html\"" << (category == "random" ? " class=\"active\"" : "") << ">Thoughtful</a></li>\n";
+    html << "            </ul>\n";
+    html << "        </nav>\n";
+    html << "    </aside>\n";
+
+    // Main content
+    html << "    <div class=\"blog-content\">\n";
+    html << "        <h1>" << categoryTitle << "</h1>\n";
+    html << "        <p>" << categoryDesc << "</p>\n\n";
+    html << "        <div class=\"blog-list\">\n";
+
+        // Show posts for current page
+        for (int i = startIdx; i < endIdx; i++) {
+            const auto& post = blogPosts[i];
+            html << "            <article class=\"blog-item\">\n";
+
+            // Add category badge if showing all posts (no category filter)
+            if (category.empty() && !post.category.empty()) {
+                std::string categoryDisplay = post.category;
+                categoryDisplay[0] = std::toupper(categoryDisplay[0]); // Capitalize first letter
+                html << "                <span class=\"category-badge category-" << post.category << "\">" << categoryDisplay << "</span>\n";
+            }
+
+            // Determine correct path - if it has a category, use blog/category/file.html, otherwise blog/file.html
+            std::string postPath = post.category.empty() ? "blog/" + post.outputPath : "blog/" + post.category + "/" + post.outputPath;
+
+            html << "                <h2><a href=\"" << postPath << "\">" << post.title << "</a></h2>\n";
+            html << "                <p class=\"blog-date\">Published on " << post.publishDate << "</p>\n";
+
+            // Add excerpt if available
+            if (!post.excerpt.empty()) {
+                html << "                <p class=\"blog-excerpt\">" << post.excerpt << "</p>\n";
+            }
+
+            html << "                <a href=\"" << postPath << "\" class=\"read-more\">Read more →</a>\n";
+            html << "            </article>\n";
         }
 
-        html << "        <a href=\"blog/" << post.outputPath << "\" class=\"read-more\">Read more →</a>\n";
-        html << "    </article>\n";
-    }
-
-    html << "</div>\n";
+    html << "        </div>\n"; // close blog-list
 
     // Add pagination controls if there are multiple pages
     if (totalPages > 1) {
         html << "\n<nav class=\"pagination\">\n";
 
+        // Determine base page name from category
+        std::string basePage = category.empty() ? "blogs" : category;
+
         // Previous button
         if (pageNum > 1) {
-            std::string prevPage = (pageNum == 2) ? "blogs.html" : "blogs-" + std::to_string(pageNum - 1) + ".html";
+            std::string prevPage = (pageNum == 2) ? basePage + ".html" : basePage + "-" + std::to_string(pageNum - 1) + ".html";
             html << "    <a href=\"" << prevPage << "\" class=\"pagination-btn\">&larr; Previous</a>\n";
         } else {
             html << "    <span class=\"pagination-btn disabled\">&larr; Previous</span>\n";
@@ -320,7 +377,7 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
         // Page numbers
         html << "    <div class=\"pagination-numbers\">\n";
         for (int i = 1; i <= totalPages; i++) {
-            std::string pageLink = (i == 1) ? "blogs.html" : "blogs-" + std::to_string(i) + ".html";
+            std::string pageLink = (i == 1) ? basePage + ".html" : basePage + "-" + std::to_string(i) + ".html";
             if (i == pageNum) {
                 html << "        <span class=\"page-number active\">" << i << "</span>\n";
             } else {
@@ -331,7 +388,7 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
 
         // Next button
         if (pageNum < totalPages) {
-            std::string nextPage = "blogs-" + std::to_string(pageNum + 1) + ".html";
+            std::string nextPage = basePage + "-" + std::to_string(pageNum + 1) + ".html";
             html << "    <a href=\"" << nextPage << "\" class=\"pagination-btn\">Next &rarr;</a>\n";
         } else {
             html << "    <span class=\"pagination-btn disabled\">Next &rarr;</span>\n";
@@ -340,7 +397,83 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
         html << "</nav>\n";
     }
 
+    html << "    </div>\n"; // close blog-content
+    html << "</div>\n"; // close blog-container
+
     return html.str();
+}
+
+// Helper function to process blog posts from a specific category directory
+void processCategoryBlogs(const std::string& categoryDir, const std::string& categoryOutputDir,
+                         const std::string& categoryName, std::vector<BlogPost>& allBlogPosts,
+                         std::vector<BlogPost>& blogsToGenerate, int& skippedBlogs,
+                         const std::map<std::string, CachedMetadata>& cache,
+                         std::map<std::string, CachedMetadata>& newCache,
+                         const std::string& templateHash, MarkdownParser& parser) {
+    if (!fs::exists(categoryDir)) {
+        return;
+    }
+
+    for (const auto& entry : fs::directory_iterator(categoryDir)) {
+        if (entry.path().extension() == ".md") {
+            std::string filepath = entry.path().string();
+            std::string filename = entry.path().filename().string();
+            std::string outputFilename = entry.path().stem().string() + ".html";
+            std::string outputPath = categoryOutputDir + "/" + outputFilename;
+
+            std::string markdownContent = readFile(filepath);
+            if (markdownContent.empty()) {
+                continue;
+            }
+
+            std::string title = extractTitle(markdownContent);
+            std::string excerptMarkdown = extractExcerpt(markdownContent);
+            std::string excerpt = parser.convertToHTML(excerptMarkdown);
+
+            // Use cached date if available, otherwise get from file system
+            std::string publishDate;
+            std::time_t timestamp;
+
+            auto cachedIt = cache.find(filepath);
+            if (cachedIt != cache.end() && !cachedIt->second.publishDate.empty()) {
+                publishDate = cachedIt->second.publishDate;
+                timestamp = cachedIt->second.timestamp;
+            } else {
+                publishDate = getFileModificationDate(filepath);
+                timestamp = getFileModificationTimestamp(filepath);
+            }
+
+            BlogPost post;
+            post.filename = filename;
+            post.title = title;
+            post.excerpt = excerpt;
+            post.outputPath = outputFilename;
+            post.publishDate = publishDate;
+            post.timestamp = timestamp;
+            post.category = categoryName;
+
+            // Check if regeneration is needed
+            if (!needsBlogRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+                std::cout << "Skipping (up-to-date): " << filename << " [" << categoryName << "]" << std::endl;
+                skippedBlogs++;
+                newCache[filepath] = cache.at(filepath);
+            } else {
+                std::cout << "Processing blog: " << filename << " [" << categoryName << "]" << std::endl;
+                std::string htmlContent = parser.convertToHTML(markdownContent);
+                post.content = htmlContent;
+                blogsToGenerate.push_back(post);
+
+                CachedMetadata metadata;
+                metadata.contentHash = hashString(markdownContent + templateHash);
+                metadata.publishDate = publishDate;
+                metadata.timestamp = timestamp;
+                metadata.fileModTime = 0;
+                newCache[filepath] = metadata;
+            }
+
+            allBlogPosts.push_back(post);
+        }
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -348,9 +481,15 @@ int main(int argc, char* argv[]) {
 
     std::string contentDir = "content";
     std::string blogDir = "content/blog";
+    std::string techDir = "content/blog/tech";
+    std::string moviesDir = "content/blog/movies";
+    std::string randomDir = "content/blog/random";
     std::string imagesDir = "content/images";
     std::string outputDir = "docs";
     std::string blogOutputDir = "docs/blog";
+    std::string techOutputDir = "docs/blog/tech";
+    std::string moviesOutputDir = "docs/blog/movies";
+    std::string randomOutputDir = "docs/blog/random";
     std::string imagesOutputDir = "docs/images";
     std::string templatePath = "templates/template.html";
     std::string cssSourcePath = "templates/style.css";
@@ -363,6 +502,15 @@ int main(int argc, char* argv[]) {
     }
     if (!fs::exists(blogOutputDir)) {
         fs::create_directory(blogOutputDir);
+    }
+    if (!fs::exists(techOutputDir)) {
+        fs::create_directory(techOutputDir);
+    }
+    if (!fs::exists(moviesOutputDir)) {
+        fs::create_directory(moviesOutputDir);
+    }
+    if (!fs::exists(randomOutputDir)) {
+        fs::create_directory(randomOutputDir);
     }
     if (!fs::exists(imagesOutputDir)) {
         fs::create_directory(imagesOutputDir);
@@ -475,11 +623,30 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Process blog posts
+    // Process blog posts from all categories
     std::vector<BlogPost> blogsToGenerate;
     int skippedBlogs = 0;
+
+    // Process tech blogs
+    processCategoryBlogs(techDir, techOutputDir, "tech", blogPosts, blogsToGenerate,
+                        skippedBlogs, cache, newCache, templateHash, parser);
+
+    // Process movies blogs
+    processCategoryBlogs(moviesDir, moviesOutputDir, "movies", blogPosts, blogsToGenerate,
+                        skippedBlogs, cache, newCache, templateHash, parser);
+
+    // Process random blogs
+    processCategoryBlogs(randomDir, randomOutputDir, "random", blogPosts, blogsToGenerate,
+                        skippedBlogs, cache, newCache, templateHash, parser);
+
+    // Process uncategorized blogs (directly in content/blog)
     if (fs::exists(blogDir)) {
         for (const auto& entry : fs::directory_iterator(blogDir)) {
+            // Skip directories (we already processed them above)
+            if (entry.is_directory()) {
+                continue;
+            }
+
             if (entry.path().extension() == ".md") {
                 std::string filepath = entry.path().string();
                 std::string filename = entry.path().filename().string();
@@ -492,19 +659,17 @@ int main(int argc, char* argv[]) {
                 }
 
                 std::string title = extractTitle(markdownContent);
-                std::string excerpt = extractExcerpt(markdownContent);
+                std::string excerptMarkdown = extractExcerpt(markdownContent);
+                std::string excerpt = parser.convertToHTML(excerptMarkdown);
 
-                // Use cached date if available, otherwise get from file system
                 std::string publishDate;
                 std::time_t timestamp;
 
                 auto cachedIt = cache.find(filepath);
                 if (cachedIt != cache.end() && !cachedIt->second.publishDate.empty()) {
-                    // Use cached date (preserves original publish date)
                     publishDate = cachedIt->second.publishDate;
                     timestamp = cachedIt->second.timestamp;
                 } else {
-                    // First time seeing this file, get date from file system
                     publishDate = getFileModificationDate(filepath);
                     timestamp = getFileModificationTimestamp(filepath);
                 }
@@ -516,24 +681,23 @@ int main(int argc, char* argv[]) {
                 post.outputPath = outputFilename;
                 post.publishDate = publishDate;
                 post.timestamp = timestamp;
+                post.category = "";  // No category
 
-                // Check if regeneration is needed based on content hash (to preserve dates)
                 if (!needsBlogRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
-                    std::cout << "Skipping (up-to-date): " << filename << std::endl;
+                    std::cout << "Skipping (up-to-date): " << filename << " [uncategorized]" << std::endl;
                     skippedBlogs++;
-                    // Keep metadata in new cache
                     newCache[filepath] = cache[filepath];
                 } else {
-                    std::cout << "Processing blog: " << filename << std::endl;
+                    std::cout << "Processing blog: " << filename << " [uncategorized]" << std::endl;
                     std::string htmlContent = parser.convertToHTML(markdownContent);
                     post.content = htmlContent;
                     blogsToGenerate.push_back(post);
-                    // Store new metadata with preserved date
+
                     CachedMetadata metadata;
                     metadata.contentHash = hashString(markdownContent + templateHash);
                     metadata.publishDate = publishDate;
                     metadata.timestamp = timestamp;
-                    metadata.fileModTime = 0;  // Not used for blogs
+                    metadata.fileModTime = 0;
                     newCache[filepath] = metadata;
                 }
 
@@ -547,26 +711,68 @@ int main(int argc, char* argv[]) {
         return a.timestamp > b.timestamp;
     });
 
-    // Generate paginated blog listing pages
     const int POSTS_PER_PAGE = 5;
-    int totalPosts = blogPosts.size();
-    int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
 
-    for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
-        std::string blogListingHTML = generateBlogListingHTML(blogPosts, pageNum, POSTS_PER_PAGE);
-        Page blogIndexPage;
-        blogIndexPage.filename = "blogs.md";
-        blogIndexPage.title = "Blog";
-        blogIndexPage.content = blogListingHTML;
+    // Generate main blog listing page (all posts from all categories)
+    if (!blogPosts.empty()) {
+        int totalPosts = blogPosts.size();
+        int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
 
-        if (pageNum == 1) {
-            blogIndexPage.outputPath = "blogs.html";
-        } else {
-            blogIndexPage.outputPath = "blogs-" + std::to_string(pageNum) + ".html";
+        for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
+            std::string blogListingHTML = generateBlogListingHTML(blogPosts, pageNum, POSTS_PER_PAGE, "");
+            Page blogIndexPage;
+            blogIndexPage.filename = "blogs.md";
+            blogIndexPage.title = "Blog";
+            blogIndexPage.content = blogListingHTML;
+
+            if (pageNum == 1) {
+                blogIndexPage.outputPath = "blogs.html";
+            } else {
+                blogIndexPage.outputPath = "blogs-" + std::to_string(pageNum) + ".html";
+            }
+
+            pages.push_back(blogIndexPage);
+            pagesToGenerate.push_back(blogIndexPage);
+        }
+    }
+
+    // Generate category-specific blog listing pages
+    std::vector<std::string> categories = {"tech", "movies", "random"};
+
+    for (const auto& category : categories) {
+        // Filter posts by category
+        std::vector<BlogPost> categoryPosts;
+        for (const auto& post : blogPosts) {
+            if (post.category == category) {
+                categoryPosts.push_back(post);
+            }
         }
 
-        pages.push_back(blogIndexPage);
-        pagesToGenerate.push_back(blogIndexPage);  // Add to generation queue
+        if (categoryPosts.empty()) {
+            continue;
+        }
+
+        // Generate paginated listing for this category
+        int totalPosts = categoryPosts.size();
+        int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
+
+        for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
+            std::string categoryListingHTML = generateBlogListingHTML(categoryPosts, pageNum, POSTS_PER_PAGE, category);
+            Page categoryIndexPage;
+            categoryIndexPage.filename = category + ".md";
+            categoryIndexPage.title = (category == "tech" ? "Tech Blog" :
+                                      category == "movies" ? "Movie Reviews" : "Random Thoughts");
+            categoryIndexPage.content = categoryListingHTML;
+
+            if (pageNum == 1) {
+                categoryIndexPage.outputPath = category + ".html";
+            } else {
+                categoryIndexPage.outputPath = category + "-" + std::to_string(pageNum) + ".html";
+            }
+
+            pages.push_back(categoryIndexPage);
+            pagesToGenerate.push_back(categoryIndexPage);
+        }
     }
 
     // Generate HTML files only for pages that need updating
@@ -578,8 +784,24 @@ int main(int argc, char* argv[]) {
 
     // Generate HTML files only for blog posts that need updating
     for (const auto& post : blogsToGenerate) {
-        std::string finalHtml = applyTemplate(templateContent, post.title, post.content, pages, true);
-        std::string outputPath = blogOutputDir + "/" + post.outputPath;
+        // Determine subdirectory depth based on category
+        // Categorized posts (tech/movies/random) are 2 levels deep: blog/category/
+        // Uncategorized posts are 1 level deep: blog/
+        int depth = post.category.empty() ? 1 : 2;
+        std::string finalHtml = applyTemplate(templateContent, post.title, post.content, pages, depth);
+
+        // Determine output path based on category
+        std::string outputPath;
+        if (post.category == "tech") {
+            outputPath = techOutputDir + "/" + post.outputPath;
+        } else if (post.category == "movies") {
+            outputPath = moviesOutputDir + "/" + post.outputPath;
+        } else if (post.category == "random") {
+            outputPath = randomOutputDir + "/" + post.outputPath;
+        } else {
+            outputPath = blogOutputDir + "/" + post.outputPath;
+        }
+
         writeFile(outputPath, finalHtml);
     }
 

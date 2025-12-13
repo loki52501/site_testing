@@ -2,17 +2,19 @@
 
 # Quantum degree
 
+
 I got my first quantum degree and I'm really proud of it, absolutely, thanks to google.
 
 
-![quantumdegree](../images/quantum-degree.png)
-
-![quantumsite](../images/qubit_site.png)
-
 I was working in google's qubit web and I really liked what I was doing , the more I learn, the more I was thinking how it could be used in modern workspace. I'm still think about it. Now I'm here to discuss the keytakeaways, Quantum computing is complex, and heat alone could destroy hours/days/years of work. where the qubits have to start from first. 
 
-I was afraid the whole time when i was playing the game, that my qubits were gonna be destroyed.
+I was afraid the whole time when i was playing the game, that my qubits were gonna be destroyed. The cache is still keeping my game running.
 
+
+
+![quantumdegree](../../images/quantum-degree.png)
+
+![quantumsite](../../images/qubit_site.png)
 ## what is qubit?
 _Qubit_ is a bit but different from classical computer's definition, the qubits does give you 0s and 1s but it's based on probability distribution, where the highest probability is calculated and will give you some answers. 
 

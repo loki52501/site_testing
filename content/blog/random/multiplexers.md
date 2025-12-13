@@ -1,0 +1,3 @@
+# Thought and multiplexers
+
+Multiplexing, the base of CPUs, and thoughts are assembled here, I often wonder what it means as human, shouldn’t we have CPU’s in us, Humans should evovle, they should be cyborgs, redefine the enlightment era humanity definition to the present world. As Harway describes that we should not look for total theory but always constantly testing the boundaries of humanity. That’s what I’ve been thinking about, Machines replace physical labor and AIs are gonna change the cognitive labor, then what is left for humans, leisure and travel, even space travel, but I’m thinking the humans merging with machines would be the greatest goal of humanity by the end of this centaury, I’m saying this as a optimist.

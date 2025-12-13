@@ -2,7 +2,6 @@
 *Published on 2025-12-05*
 
 Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered.
-
 ## What I Built
 - C++ QUIC transport with custom congestion control and pacing
 - gRPC harness for cross-language benchmarks
