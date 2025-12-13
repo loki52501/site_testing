@@ -39,7 +39,7 @@ A **C++17 static site generator** that converts Markdown → HTML and auto-build
 - Markdown parser, HTML templating, auto-generated navigation  
 - GitHub Actions CI for **auto-deploy to GitHub Pages**
 
-[See details on the Projects page](/projects.html)
+[See details on the Projects page](projects.html)
 
 
 ### ThreatLens (AI for Security)
