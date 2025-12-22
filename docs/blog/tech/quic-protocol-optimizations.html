@@ -17,32 +17,44 @@
     </nav>
 
     <main>
-        <h1>QUIC Transport Optimizations from a Reimplementation</h1>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-2"><a href="#what-i-built">What I Built</a></li>
+        <li class="toc-level-2"><a href="#results">Results</a></li>
+        <li class="toc-level-2"><a href="#key-lessons">Key Lessons</a></li>
+        <li class="toc-level-2"><a href="#next-steps">Next Steps</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="quic-transport-optimizations-from-a-reimplementation">QUIC Transport Optimizations from a Reimplementation</h1>
 <p><em>Published on 2025-12-05</em></p>
 <p>Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered.</p>
-<h2>What I Built</h2>
+<h2 id="what-i-built">What I Built</h2>
 <ul>
   <li>C++ QUIC transport with custom congestion control and pacing</li>
   <li>gRPC harness for cross-language benchmarks</li>
   <li>Wireshark tracing inside a Docker-based latency simulator</li>
 </ul>
-<h2>Results</h2>
+<h2 id="results">Results</h2>
 <ul>
   <li>~25% reduction in average RTT under mixed loads</li>
   <li>Smoother cwnd evolution and fewer bursty loss events</li>
 </ul>
-<h2>Key Lessons</h2>
+<h2 id="key-lessons">Key Lessons</h2>
 <ul>
   <li>Fine-grained pacing tames burst loss more than conservative cwnd alone.</li>
   <li>Benchmark harnesses need predictable network conditions; Docker tc profiles helped.</li>
   <li>Wireshark filters (udp.port && quic) made iterative tuning faster.</li>
 </ul>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
   <li>Add BBR-style probing</li>
   <li>Bake in automated pcap diffing in CI</li>
 </ul>
 
+        </div>
     </main>
 
     <footer>

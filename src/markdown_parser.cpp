@@ -154,14 +154,24 @@ std::string MarkdownParser::parseHeaders(const std::string& line) {
     }
 
     if (level > 0 && level <= 6 && i < line.length() && line[i] == ' ') {
-        std::string content = trim(line.substr(i + 1));
+        std::string rawContent = trim(line.substr(i + 1));
+
+        // Create anchor ID from heading text (lowercase, replace spaces with hyphens)
+        std::string anchorId = rawContent;
+        std::transform(anchorId.begin(), anchorId.end(), anchorId.begin(), ::tolower);
+        std::replace(anchorId.begin(), anchorId.end(), ' ', '-');
+        // Remove special characters
+        anchorId.erase(std::remove_if(anchorId.begin(), anchorId.end(),
+            [](char c) { return !std::isalnum(c) && c != '-'; }), anchorId.end());
+
+        std::string content = rawContent;
         content = parseImages(content);
         content = parseBold(content);
         content = parseItalic(content);
         content = parseLinks(content);
         content = parseInlineCode(content);
 
-        return "<h" + std::to_string(level) + ">" + content + "</h" + std::to_string(level) + ">";
+        return "<h" + std::to_string(level) + " id=\"" + anchorId + "\">" + content + "</h" + std::to_string(level) + ">";
     }
 
     return line;

@@ -124,6 +124,66 @@ std::string extractExcerpt(const std::string& markdown, size_t maxLength = 200) 
     return excerpt;
 }
 
+// Generate table of contents from markdown headings
+std::string generateTOC(const std::string& markdown) {
+    std::stringstream ss(markdown);
+    std::stringstream toc;
+    std::string line;
+    bool hasHeadings = false;
+
+    toc << "<nav class=\"toc\">\n";
+    toc << "    <h3>Table of Contents</h3>\n";
+    toc << "    <ul>\n";
+
+    while (std::getline(ss, line)) {
+        if (!line.empty() && line[0] == '#') {
+            // Count heading level
+            size_t level = 0;
+            while (level < line.length() && line[level] == '#') {
+                level++;
+            }
+
+            // Skip the first h1 (title) - we don't want it in TOC
+            if (level == 1 && !hasHeadings) {
+                hasHeadings = true;
+                continue;
+            }
+
+            // Extract heading text
+            std::string headingText = line.substr(level);
+            // Trim leading/trailing spaces
+            size_t start = headingText.find_first_not_of(" \t");
+            size_t end = headingText.find_last_not_of(" \t");
+            if (start != std::string::npos && end != std::string::npos) {
+                headingText = headingText.substr(start, end - start + 1);
+            }
+
+            // Create anchor from heading text (lowercase, replace spaces with hyphens)
+            std::string anchor = headingText;
+            std::transform(anchor.begin(), anchor.end(), anchor.begin(), ::tolower);
+            std::replace(anchor.begin(), anchor.end(), ' ', '-');
+            // Remove special characters
+            anchor.erase(std::remove_if(anchor.begin(), anchor.end(),
+                [](char c) { return !std::isalnum(c) && c != '-'; }), anchor.end());
+
+            // Add indentation based on heading level
+            std::string indent = "";
+            for (size_t i = 2; i < level; i++) {
+                indent += "    ";
+            }
+
+            toc << indent << "        <li class=\"toc-level-" << level << "\">"
+                << "<a href=\"#" << anchor << "\">" << headingText << "</a></li>\n";
+            hasHeadings = true;
+        }
+    }
+
+    toc << "    </ul>\n";
+    toc << "</nav>\n";
+
+    return hasHeadings ? toc.str() : "";
+}
+
 std::string getFileModificationDate(const std::string& filepath) {
     auto ftime = fs::last_write_time(filepath);
     auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
@@ -234,7 +294,8 @@ bool needsBlogRegeneration(const std::string& sourcePath, const std::string& sou
 }
 
 std::string applyTemplate(const std::string& templateContent, const std::string& title,
-                          const std::string& content, const std::vector<Page>& pages, int subdirectoryDepth = 0) {
+                          const std::string& content, const std::vector<Page>& pages, int subdirectoryDepth = 0,
+                          const std::string& toc = "") {
     std::string result = templateContent;
 
     // Replace title placeholder
@@ -248,6 +309,12 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
     pos = result.find("{{CONTENT}}");
     if (pos != std::string::npos) {
         result.replace(pos, 11, content);
+    }
+
+    // Replace TOC placeholder
+    pos = result.find("{{TOC}}");
+    if (pos != std::string::npos) {
+        result.replace(pos, 7, toc);
     }
 
     // Replace CSS path placeholder - handle different subdirectory depths
@@ -788,7 +855,27 @@ int main(int argc, char* argv[]) {
         // Categorized posts (tech/movies/random) are 2 levels deep: blog/category/
         // Uncategorized posts are 1 level deep: blog/
         int depth = post.category.empty() ? 1 : 2;
-        std::string finalHtml = applyTemplate(templateContent, post.title, post.content, pages, depth);
+
+        // Generate TOC from markdown content for this post
+        std::string tocHtml = "";
+        // Find the original markdown file to generate TOC
+        std::string markdownPath;
+        if (post.category == "tech") {
+            markdownPath = techDir + "/" + post.filename;
+        } else if (post.category == "movies") {
+            markdownPath = moviesDir + "/" + post.filename;
+        } else if (post.category == "random") {
+            markdownPath = randomDir + "/" + post.filename;
+        } else {
+            markdownPath = blogDir + "/" + post.filename;
+        }
+
+        if (fs::exists(markdownPath)) {
+            std::string markdown = readFile(markdownPath);
+            tocHtml = generateTOC(markdown);
+        }
+
+        std::string finalHtml = applyTemplate(templateContent, post.title, post.content, pages, depth, tocHtml);
 
         // Determine output path based on category
         std::string outputPath;

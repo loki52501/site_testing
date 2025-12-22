@@ -17,9 +17,34 @@
     </nav>
 
     <main>
-        <h1>Shortest path algorithms</h1>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-1"><a href="#dijkstra-algorithm">Dijkstra Algorithm</a></li>
+        <li class="toc-level-1"><a href="#first-iteration">First Iteration</a></li>
+        <li class="toc-level-1"><a href="#second-iteration">Second iteration</a></li>
+        <li class="toc-level-1"><a href="#third-iteration">Third iteration</a></li>
+        <li class="toc-level-1"><a href="#fourth-iteration">Fourth Iteration</a></li>
+        <li class="toc-level-1"><a href="#bellman-ford-algorithm">Bellman Ford Algorithm</a></li>
+        <li class="toc-level-1"><a href="#first-iteration">First Iteration</a></li>
+            <li class="toc-level-3"><a href="#edge-ab-weight-5">Edge A→B (weight: 5)</a></li>
+            <li class="toc-level-3"><a href="#edge-bc-weight--5">Edge B→C (weight: -5)</a></li>
+            <li class="toc-level-3"><a href="#edge-cd-weight-3">Edge C→D (weight: 3)</a></li>
+            <li class="toc-level-3"><a href="#edge-ce-weight-1">Edge C→E (weight: 1)</a></li>
+            <li class="toc-level-3"><a href="#edge-de-weight-2">Edge D→E (weight: 2)</a></li>
+        <li class="toc-level-1"><a href="#second-iteration">Second Iteration</a></li>
+            <li class="toc-level-3"><a href="#edge-ab-weight-5">Edge A→B (weight: 5)</a></li>
+            <li class="toc-level-3"><a href="#edge-bc-weight--5">Edge B→C (weight: -5)</a></li>
+            <li class="toc-level-3"><a href="#edge-cd-weight-3">Edge C→D (weight: 3)</a></li>
+            <li class="toc-level-3"><a href="#edge-ce-weight-1">Edge C→E (weight: 1)</a></li>
+            <li class="toc-level-3"><a href="#edge-de-weight-2">Edge D→E (weight: 2)</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="shortest-path-algorithms">Shortest path algorithms</h1>
 <p>Dijkstra Algorithm , bellman ford algorithm and floyd warshall algorithm</p>
-<h1>Dijkstra Algorithm</h1>
+<h1 id="dijkstra-algorithm">Dijkstra Algorithm</h1>
 <ol>
   <li>we are gonna look at Dijkstra Algorithm:</li>
 </ol>
@@ -30,7 +55,7 @@
 <p>the iteration starts from jack’s place and his adjacent nodes,</p>
 <p>jack’s place value is initialized to zero.</p>
 <p>we will check if u(i)+weight<\v , where i is the current value of the path, and weight is the value from that path to v, where v is the destination. if there is a v already and if the current weight path is lesser than that, then v needs to be updated, as shortest path to v. we will track each node via visited boolean variable, that keeps track of each node, if it was visited or not.</p>
-<h1>First Iteration</h1>
+<h1 id="first-iteration">First Iteration</h1>
 <ol>
   <li>when we start, u1 will be jack, and from his place, we will calculate all the possible destinations and it's weights. initally all values will be assigned infinity, if there is a value already, we will compare it with the new value and if it is small then we will replace. there will be a visited variable which tracks all the values we have visited. so the visited of jacks place is set to true in the first iteration.</li>
 </ol>
@@ -54,7 +79,7 @@
     </tr>
   </tbody>
 </table>
-<h1>Second iteration</h1>
+<h1 id="second-iteration">Second iteration</h1>
 <ol>
   <li>In second iteration we know the values that we got from the first iteration, the next path that will be choosen here is the shortest path from u1, i.e philly, so u2, will be philly, from u2 we will figure out all the possible values . philly will be marked as visited, so that there is no need to visit philly again.</li>
 </ol>
@@ -85,7 +110,7 @@
     </tr>
   </tbody>
 </table>
-<h1>Third iteration</h1>
+<h1 id="third-iteration">Third iteration</h1>
 <ol>
   <li>In third iteration, we will chose our u3 value as new jersey, as it is shortest from philly, and it will be marked as visited. now we will calculate the shortest values, by the if condition(u2+weight<\v) where u3=u2+weight, and v is the preexisting value at the destination.</li>
 </ol>
@@ -124,7 +149,7 @@
   </tbody>
 </table>
 <p>nyc value gets update as the previous value is larger than the current weight value. </p>
-<h1>Fourth Iteration</h1>
+<h1 id="fourth-iteration">Fourth Iteration</h1>
 <p>since sometown hasn't been visited yet, we go to sometown, with it's current path value of 14, and will be marked as visited.</p>
 <table>
   <thead>
@@ -168,7 +193,7 @@
   </tbody>
 </table>
 <p>Here nyc value gets update as there is a shortest path from sometown . </p>
-<h1>Bellman Ford Algorithm</h1>
+<h1 id="bellman-ford-algorithm">Bellman Ford Algorithm</h1>
 <p>This algorithm is similar to that of Dijkstra, but it could detect negative cycles. that is weight with negative values forming a unending chain of loop, since the values will be one smaller than the other and so on. </p>
 <p>we will update the shortest distance value from u to v, if it’s lesser than the previous value. In other words, it relaxes edges.</p>
 <p>Here we loop through n-1 times, where n is the number of vertices. why do we loop n-1 times, we can be sure that when we loop for n-1 times, a shortest path from graph with n nodes can use at most n-1 edges, as n edges would imply a cycle and cycles don’t help unless negative. </p>
@@ -184,18 +209,18 @@
 <p>We have to traverse through the entire edges n-1 times where n is the no of vertices. </p>
 <p>initially we start at the source, which , here is A. and assign it’s distance as 0. same as we did in dijkstra.</p>
 <p>now we will do n-1 iterations:, here u is the src, and v is the dest, since we’re doing it for all the edges it would be O((V-1)*E), where V is no of vertices and E is no of edges.</p>
-<h1>First Iteration</h1>
+<h1 id="first-iteration">First Iteration</h1>
 <p>We process all edges in sequence and update distances when we find a shorter path.</p>
 <p><strong>Initial state:</strong> A=0 (source), all others = ∞</p>
-<h3>Edge A→B (weight: 5)</h3>
+<h3 id="edge-ab-weight-5">Edge A→B (weight: 5)</h3>
 <p>A is 0, B is ∞. Calculate: 0 + 5 = 5 < ∞, so update B to 5.</p>
-<h3>Edge B→C (weight: -5)</h3>
+<h3 id="edge-bc-weight--5">Edge B→C (weight: -5)</h3>
 <p>B is 5, C is ∞. Calculate: 5 + (-5) = 0 < ∞, so update C to 0.</p>
-<h3>Edge C→D (weight: 3)</h3>
+<h3 id="edge-cd-weight-3">Edge C→D (weight: 3)</h3>
 <p>C is 0, D is ∞. Calculate: 0 + 3 = 3 < ∞, so update D to 3.</p>
-<h3>Edge C→E (weight: 1)</h3>
+<h3 id="edge-ce-weight-1">Edge C→E (weight: 1)</h3>
 <p>C is 0, E is ∞. Calculate: 0 + 1 = 1 < ∞, so update E to 1.</p>
-<h3>Edge D→E (weight: 2)</h3>
+<h3 id="edge-de-weight-2">Edge D→E (weight: 2)</h3>
 <p>D is 3, E is 1. Calculate: 3 + 2 = 5, but 5 > 1 (current E), so no update.</p>
 <table>
   <thead>
@@ -219,17 +244,17 @@
     </tr>
   </tbody>
 </table>
-<h1>Second Iteration</h1>
+<h1 id="second-iteration">Second Iteration</h1>
 <p>We process all edges again to check if any paths can be improved.</p>
-<h3>Edge A→B (weight: 5)</h3>
+<h3 id="edge-ab-weight-5">Edge A→B (weight: 5)</h3>
 <p>A is 0, B is 5. Calculate: 0 + 5 = 5, which equals B's current value. No update.</p>
-<h3>Edge B→C (weight: -5)</h3>
+<h3 id="edge-bc-weight--5">Edge B→C (weight: -5)</h3>
 <p>B is 5, C is 0. Calculate: 5 + (-5) = 0, which equals C's current value. No update.</p>
-<h3>Edge C→D (weight: 3)</h3>
+<h3 id="edge-cd-weight-3">Edge C→D (weight: 3)</h3>
 <p>C is 0, D is 3. Calculate: 0 + 3 = 3, which equals D's current value. No update.</p>
-<h3>Edge C→E (weight: 1)</h3>
+<h3 id="edge-ce-weight-1">Edge C→E (weight: 1)</h3>
 <p>C is 0, E is 1. Calculate: 0 + 1 = 1, which equals E's current value. No update.</p>
-<h3>Edge D→E (weight: 2)</h3>
+<h3 id="edge-de-weight-2">Edge D→E (weight: 2)</h3>
 <p>D is 3, E is 1. Calculate: 3 + 2 = 5, but 5 > 1 (current E). No update.</p>
 <p><strong>Result:</strong> No changes in iteration 2, meaning we've found the shortest paths!</p>
 <table>
@@ -264,6 +289,7 @@
 </table>
 <p>The algorithm would continue for iterations 3 and 4 (since n=5 vertices, we do n-1=4 iterations), but no further updates would occur. The shortest path from A to E is <strong>1</strong> (via A→B→C→E). </p>
 
+        </div>
     </main>
 
     <footer>

@@ -17,27 +17,38 @@
     </nav>
 
     <main>
-        <h1>AI-Driven Streaming Infra: Keeping Playback Smooth</h1>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-2"><a href="#stack">Stack</a></li>
+        <li class="toc-level-2"><a href="#what-worked">What Worked</a></li>
+        <li class="toc-level-2"><a href="#takeaways">Takeaways</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="ai-driven-streaming-infra-keeping-playback-smooth">AI-Driven Streaming Infra: Keeping Playback Smooth</h1>
 <p><em>Published on 2025-11-20</em></p>
 <p>I built an adaptive streaming platform that uses AI-based bitrate prediction to reduce buffering when networks fluctuate. This was amazing.</p>
-<h2>Stack</h2>
+<h2 id="stack">Stack</h2>
 <ul>
   <li>Python + FastAPI on AWS EC2</li>
   <li>React client with SSE for real-time token delivery</li>
   <li>Frame compression tuned for low-latency playback</li>
 </ul>
-<h2>What Worked</h2>
+<h2 id="what-worked">What Worked</h2>
 <ul>
   <li>AI bitrate prediction reduced buffer events compared to static ABR.</li>
   <li>SSE kept clients in sync without heavy polling.</li>
   <li>Compression tweaks cut glass-to-glass delay.</li>
 </ul>
-<h2>Takeaways</h2>
+<h2 id="takeaways">Takeaways</h2>
 <ul>
   <li>Prediction models should be retrained per region; network shape matters.</li>
   <li>Server hints plus client heuristics beat either alone.</li>
 </ul>
 
+        </div>
     </main>
 
     <footer>

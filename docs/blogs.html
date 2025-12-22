@@ -17,7 +17,9 @@
     </nav>
 
     <main>
-        <div class="blog-container">
+        
+        <div class="content-wrapper">
+            <div class="blog-container">
     <aside class="blog-sidebar">
         <nav class="sidebar-menu">
             <h3>Categories</h3>
@@ -34,6 +36,16 @@
         <p>All my blog posts</p>
 
         <div class="blog-list">
+            <article class="blog-item">
+                <span class="category-badge category-tech">Tech</span>
+                <h2><a href="blog/tech/DDIA_CH1.html">My readings on DDIA ch1</a></h2>
+                <p class="blog-date">Published on December 22, 2025 at 03:49 PM</p>
+                <p class="blog-excerpt"><ul>
+  <li>Most systems today are lacking architecture for data intensive , than compute intensive, as there is more power for compute intensive than the idea or how to manipulate huge amounts of data to a...</li>
+</ul>
+</p>
+                <a href="blog/tech/DDIA_CH1.html" class="read-more">Read more →</a>
+            </article>
             <article class="blog-item">
                 <span class="category-badge category-random">Random</span>
                 <h2><a href="blog/random/multiplexers.html">Thought and multiplexers</a></h2>
@@ -64,14 +76,6 @@
 </p>
                 <a href="blog/tech/ai-streaming-infra.html" class="read-more">Read more →</a>
             </article>
-            <article class="blog-item">
-                <span class="category-badge category-tech">Tech</span>
-                <h2><a href="blog/tech/quic-protocol-optimizations.html">QUIC Transport Optimizations from a Reimplementation</a></h2>
-                <p class="blog-date">Published on December 13, 2025 at 03:45 PM</p>
-                <p class="blog-excerpt"><p>Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered. - C++ QUIC transport with custom congestion control and...</p>
-</p>
-                <a href="blog/tech/quic-protocol-optimizations.html" class="read-more">Read more →</a>
-            </article>
         </div>
 
 <nav class="pagination">
@@ -85,6 +89,7 @@
     </div>
 </div>
 
+        </div>
     </main>
 
     <footer>

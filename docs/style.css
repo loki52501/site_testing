@@ -4,11 +4,15 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     line-height: 1.8;
-    color: #1e293b;
-    background: #ffffff;
+    color: #2d3748;
+    background: #f7fafc;
     min-height: 100vh;
     font-weight: 400;
     font-size: 18px;
@@ -32,7 +36,7 @@ nav .container {
 
 nav a {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-    color: #64748b;
+    color: #718096;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.875rem;
@@ -42,23 +46,132 @@ nav a {
 }
 
 nav a:hover {
-    color: #2563eb;
+    color: #2b6cb0;
     border-bottom: none;
 }
 
 /* Main Content */
 main {
-    max-width: 680px;
+    max-width: 1200px;
     margin: 5rem auto;
     padding: 0 2rem;
     min-height: 70vh;
 }
 
-/* Override main max-width when it contains blog-container */
-main:has(.blog-container) {
-    max-width: 1200px;
+/* Single column for pages without TOC */
+main:not(:has(.toc)) {
+    max-width: 800px;
+}
+
+/* Two column layout when TOC exists */
+main:has(.toc) {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+/* Table of Contents - Left Sidebar */
+.toc {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.toc nav {
+    position: sticky;
+    top: 2rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Blog content wrapper - flows vertically */
+.content-wrapper {
+    flex: 1;
+    max-width: 800px;
+}
+
+.toc h3 {
+    font-size: 0.75rem;
+    margin: 0 0 1rem 0;
+    color: #4a5568;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.toc ul {
+    list-style: none;
     padding: 0;
-    margin: 0 auto;
+    margin: 0;
+}
+
+.toc li {
+    margin: 0;
+}
+
+.toc a {
+    display: block;
+    padding: 0.5rem 0;
+    color: #4a5568;
+    text-decoration: none;
+    border-bottom: none;
+    border-left: 2px solid transparent;
+    padding-left: 0.75rem;
+    margin-left: 0;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-transform: none;
+}
+
+.toc a:hover {
+    color: #2c5282;
+    border-left-color: #4299e1;
+    padding-left: 1rem;
+}
+
+.toc li.toc-level-3 a {
+    padding-left: 1.5rem;
+    font-size: 0.813rem;
+    color: #718096;
+}
+
+.toc li.toc-level-3 a:hover {
+    padding-left: 1.75rem;
+}
+
+.toc li.toc-level-4 a {
+    padding-left: 2.25rem;
+    font-size: 0.75rem;
+    color: #a0aec0;
+}
+
+.toc li.toc-level-4 a:hover {
+    padding-left: 2.5rem;
+}
+
+/* Scrollbar styling for TOC */
+.toc nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.toc nav::-webkit-scrollbar-track {
+    background: #edf2f7;
+    border-radius: 3px;
+}
+
+.toc nav::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.toc nav::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
 }
 
 /* Typography */
@@ -67,7 +180,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.05em;
-    color: #0f172a;
+    color: #1a202c;
     text-transform: uppercase;
 }
 
@@ -75,39 +188,47 @@ h1 {
     font-size: 2.125rem;
     margin: 0 0 3rem 0;
     padding-bottom: 2rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
+    color: #1a202c;
 }
 
 h2 {
     font-size: 1.5rem;
     margin: 4rem 0 2rem 0;
-    color: #1e40af;
+    color: #2d3748;
+    scroll-margin-top: 2rem;
 }
 
 h3 {
     font-size: 1.125rem;
     margin: 3rem 0 1.5rem 0;
-    color: #1e40af;
+    color: #4a5568;
+    scroll-margin-top: 2rem;
+}
+
+h4 {
+    scroll-margin-top: 2rem;
+    color: #718096;
 }
 
 p {
     margin: 2rem 0;
     font-size: 1.125rem;
-    color: #334155;
+    color: #4a5568;
     line-height: 1.8;
 }
 
 /* Links */
 a {
-    color: #2563eb;
+    color: #2b6cb0;
     text-decoration: none;
-    border-bottom: 1px solid #93c5fd;
+    border-bottom: 1px solid #90cdf4;
     transition: all 0.2s ease;
 }
 
 a:hover {
-    color: #1e40af;
-    border-bottom-color: #1e40af;
+    color: #2c5282;
+    border-bottom-color: #2c5282;
 }
 
 /* Lists */
@@ -118,28 +239,28 @@ ul, ol {
 
 li {
     margin: 0.75rem 0;
-    color: #4a4a4a;
+    color: #4a5568;
 }
 
 li::marker {
-    color: #999;
+    color: #a0aec0;
 }
 
 /* Code */
 code {
-    background: #eff6ff;
+    background: #edf2f7;
     padding: 0.2rem 0.5rem;
-    border-radius: 3px;
+    border-radius: 4px;
     font-family: 'SF Mono', Monaco, 'Courier New', monospace;
     font-size: 0.875em;
-    color: #1e40af;
-    border: 1px solid #dbeafe;
+    color: #2c5282;
+    border: 1px solid #e2e8f0;
 }
 
 pre {
-    background: #f8fafc;
+    background: #f7fafc;
     padding: 2rem;
-    border-radius: 4px;
+    border-radius: 8px;
     overflow-x: auto;
     margin: 2.5rem 0;
     border: 1px solid #e2e8f0;
@@ -149,7 +270,7 @@ pre code {
     background: none;
     padding: 0;
     border: none;
-    color: #334155;
+    color: #2d3748;
 }
 
 /* Images */
@@ -158,7 +279,8 @@ img {
     height: auto;
     display: block;
     margin: 2.5rem 0;
-    border-radius: 4px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 /* Footer */
@@ -167,7 +289,7 @@ footer {
     margin: 6rem auto 3rem;
     padding: 3rem 2rem 2rem;
     text-align: center;
-    color: #64748b;
+    color: #718096;
     font-size: 0.875rem;
     border-top: 1px solid #e2e8f0;
 }
@@ -181,7 +303,7 @@ footer {
 
 .social-links a {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-    color: #64748b;
+    color: #718096;
     text-decoration: none;
     font-size: 0.875rem;
     letter-spacing: 0.05em;
@@ -191,28 +313,20 @@ footer {
 }
 
 .social-links a:hover {
-    color: #2563eb;
+    color: #2b6cb0;
 }
 
 footer p {
     margin: 0;
     font-size: 0.875rem;
-    color: #94a3b8;
+    color: #a0aec0;
 }
 
-/* Blog Layout with Sidebar */
+/* Blog Listing Layout with Categories Sidebar */
 .blog-container {
     display: flex;
-    gap: 4rem;
-    max-width: 1200px;
-    margin: 5rem auto;
-    padding: 0 2rem;
-}
-
-.blog-content {
-    flex: 1;
-    min-width: 0;
-    order: 2;
+    gap: 3rem;
+    align-items: flex-start;
 }
 
 .blog-sidebar {
@@ -221,19 +335,26 @@ footer p {
     order: 1;
 }
 
+.blog-content {
+    flex: 1;
+    min-width: 0;
+    order: 2;
+}
+
 .sidebar-menu {
     position: sticky;
     top: 2rem;
-    background: #f8fafc;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-menu h3 {
     font-size: 0.875rem;
     margin: 0 0 1rem 0;
-    color: #64748b;
+    color: #4a5568;
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -252,7 +373,7 @@ footer p {
 .sidebar-menu a {
     display: block;
     padding: 0.75rem 1rem;
-    color: #64748b;
+    color: #4a5568;
     text-decoration: none;
     border-bottom: none;
     border-left: 3px solid transparent;
@@ -264,15 +385,15 @@ footer p {
 }
 
 .sidebar-menu a:hover {
-    color: #2563eb;
-    background-color: #eff6ff;
-    border-left-color: #2563eb;
+    color: #2c5282;
+    background-color: #edf2f7;
+    border-left-color: #4299e1;
 }
 
 .sidebar-menu a.active {
-    color: #2563eb;
-    background-color: #eff6ff;
-    border-left-color: #2563eb;
+    color: #2c5282;
+    background-color: #ebf8ff;
+    border-left-color: #4299e1;
     font-weight: 600;
 }
 
@@ -312,42 +433,42 @@ footer p {
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    border-radius: 3px;
+    border-radius: 4px;
     border: 1px solid;
 }
 
 .category-tech {
-    color: #1e40af;
-    background-color: #eff6ff;
-    border-color: #93c5fd;
+    color: #2c5282;
+    background-color: #ebf8ff;
+    border-color: #90cdf4;
 }
 
 .category-movies {
-    color: #7c2d12;
-    background-color: #fef2f2;
-    border-color: #fca5a5;
+    color: #5a67d8;
+    background-color: #edf2f7;
+    border-color: #a3bffa;
 }
 
 .category-random {
-    color: #065f46;
-    background-color: #f0fdf4;
-    border-color: #86efac;
+    color: #2b6cb0;
+    background-color: #bee3f8;
+    border-color: #63b3ed;
 }
 
 .blog-item h2 a {
-    color: #0f172a;
+    color: #1a202c;
     text-decoration: none;
     border-bottom: none;
     transition: color 0.3s ease;
 }
 
 .blog-item h2 a:hover {
-    color: #2563eb;
+    color: #2b6cb0;
 }
 
 .blog-date {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-    color: #94a3b8;
+    color: #a0aec0;
     font-size: 0.813rem;
     margin: 0;
     font-weight: 500;
@@ -358,7 +479,7 @@ footer p {
 .blog-excerpt {
     margin: 1.5rem 0;
     font-size: 1rem;
-    color: #64748b;
+    color: #718096;
     line-height: 1.7;
 }
 
@@ -366,19 +487,19 @@ footer p {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     display: inline-block;
     margin-top: 1rem;
-    color: #2563eb;
+    color: #2b6cb0;
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    border-bottom: 2px solid #2563eb;
+    border-bottom: 2px solid #2b6cb0;
     padding-bottom: 0.2rem;
     transition: all 0.3s ease;
 }
 
 .read-more:hover {
-    color: #1e40af;
-    border-bottom-color: #1e40af;
+    color: #2c5282;
+    border-bottom-color: #2c5282;
 }
 
 /* Pagination */
@@ -400,10 +521,10 @@ footer p {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     display: inline-block;
     padding: 0.75rem 1.5rem;
-    color: #2563eb;
+    color: #2b6cb0;
     background-color: transparent;
-    border: 1px solid #2563eb;
-    border-radius: 4px;
+    border: 1px solid #2b6cb0;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -412,13 +533,13 @@ footer p {
 }
 
 .pagination-btn:hover {
-    background-color: #2563eb;
+    background-color: #2b6cb0;
     color: #ffffff;
-    border-bottom-color: #2563eb;
+    border-bottom-color: #2b6cb0;
 }
 
 .pagination-btn.disabled {
-    color: #cbd5e1;
+    color: #cbd5e0;
     border-color: #e2e8f0;
     cursor: not-allowed;
     opacity: 0.5;
@@ -426,7 +547,7 @@ footer p {
 
 .pagination-btn.disabled:hover {
     background-color: transparent;
-    color: #cbd5e1;
+    color: #cbd5e0;
 }
 
 .page-number {
@@ -436,25 +557,25 @@ footer p {
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    color: #64748b;
+    color: #718096;
     border: 1px solid #e2e8f0;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.3s ease;
 }
 
 .page-number:hover {
-    color: #2563eb;
-    border-color: #2563eb;
-    background-color: #eff6ff;
-    border-bottom-color: #2563eb;
+    color: #2b6cb0;
+    border-color: #2b6cb0;
+    background-color: #ebf8ff;
+    border-bottom-color: #2b6cb0;
 }
 
 .page-number.active {
     color: #ffffff;
-    background-color: #2563eb;
-    border-color: #2563eb;
+    background-color: #2b6cb0;
+    border-color: #2b6cb0;
 }
 
 /* Tables */
@@ -467,7 +588,7 @@ table {
 }
 
 table thead {
-    background-color: #f8fafc;
+    background-color: #edf2f7;
     border-bottom: 2px solid #e2e8f0;
 }
 
@@ -482,19 +603,19 @@ table td {
 table th {
     font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-weight: 600;
-    color: #0f172a;
+    color: #1a202c;
     font-size: 0.875rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
 table td {
-    color: #334155;
+    color: #4a5568;
     font-size: 1rem;
 }
 
 table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: #f7fafc;
 }
 
 /* Responsive */
@@ -572,9 +693,28 @@ table tbody tr:hover {
         padding: 0.75rem 1rem;
     }
 
+    /* TOC responsive - stack vertically on mobile */
+    main:has(.toc) {
+        flex-direction: column;
+    }
+
+    .toc {
+        width: 100%;
+        order: -1;
+    }
+
+    .toc nav {
+        position: static;
+        max-height: 300px;
+    }
+
+    .content-wrapper {
+        max-width: 100%;
+    }
+
+    /* Blog listing responsive - stack sidebar on mobile */
     .blog-container {
         flex-direction: column;
-        margin: 3rem auto;
     }
 
     .blog-sidebar {
@@ -584,9 +724,5 @@ table tbody tr:hover {
 
     .sidebar-menu {
         position: static;
-    }
-
-    .sidebar-menu h3 {
-        font-size: 0.75rem;
     }
 }
