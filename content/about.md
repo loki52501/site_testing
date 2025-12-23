@@ -1,53 +1,40 @@
-<!-- content/about.md -->
-
 # About
 
-I am an early-career engineer with a background in **cybersecurity** and a long-term goal to work on:
+I'm Lokesh, a cybersecurity grad student at Penn State who accidentally ended up in Singapore during their National Day (the fireworks were amazing, but I had no idea why everyone was celebrating until someone told me).
 
-1. **AI infrastructure / ML systems** 
+I play chess competitively—well enough , and did Skating enough to earn spots in the Limca Book of Records and Asia Book of Records. Chess taught me to think several moves ahead, which turns out to be pretty useful when designing secure systems at scale.
 
-Rather than chasing buzzwords, I am deliberately building:
+Right now, I'm building EdgeStreamAI for my master's capstone—an AI-powered operations platform for Netflix-scale live streaming. But the project I'm most excited about? A production-level e-commerce site for my mother's organic shop back home.
 
-- **Strong fundamentals** in Python, C++, algorithms, and distributed systems
-- **Practical ML skills** in PyTorch and MLOps
-- **A security-informed mindset** for designing robust, failure-aware systems
+## What I Actually Do
 
-## My current focus
+**During the day**: Building secure, scalable systems. I've automated infrastructure security workflows, designed AWS IAM policies, and built ML models for network intrusion detection. My sweet spot is where AI meets network security—especially at massive scale.
 
-### 1. AI Infrastructure and ML Systems
+**After hours**: Reading (just finished "Thinking, Fast and Slow"—mind-bending stuff about how we make decisions), watching movies (counting down to Avatar: Fire and Ash), and working on side projects that solve real problems for real people.
 
-I am following a structured roadmap centered on:
+## My Technical Philosophy
 
-- **PyTorch first:** tensors, autograd, CNNs, training loops  
-- **Distributed systems:** *Designing Data-Intensive Applications* (DDIA) and MIT 6.824  
-- **ML system design:** reading Chip Huyen and studying real-world ML platforms  
-- **MLOps tools:** MLflow, Docker, Ray, Kubernetes basics
+Coming from cybersecurity, I think about systems differently:
+- **Security first**: How does this fail under attack?
+- **Scale matters**: Will this work at 200M concurrent users?
+- **Real-world constraints**: Latency, cost, reliability—not just "does it work in the demo?"
 
-The goal is to be able to:
+I don't chase buzzwords. I build things that work, then make them secure, then make them scale.
 
-- Design and explain an **end-to-end ML system** (data → training → serving → monitoring)  
-- Discuss **trade-offs** in model deployment, scaling, and reliability  
-- Implement and debug real systems, not just notebooks
+## Current Focus (Graduating May 2026)
 
+**Building**: EdgeStreamAI—proving I can design systems for Netflix-scale challenges
 
-### 2. Security-informed Engineering
+**Learning**: DDIA (Kleppmann), distributed systems fundamentals, real-time infrastructure at scale
 
-Coming from cybersecurity, I care about:
+**Looking for**: New grad roles where I can apply security engineering + AI to real infrastructure problems. Dream companies: Netflix, Cloudflare, companies building systems that millions depend on.
 
-- How systems **fail under adversarial or unexpected inputs**  
-- How to reason about **observability, logging, and forensics**  
-- Reducing attack surface and building **defense-in-depth** into ML systems
+## Beyond Code
 
-This perspective is especially relevant for:
+Chess player, Skater (records holder), movie enthusiast, book worm. I believe the best engineers are interesting humans first, and that curiosity about the world makes you better at solving technical problems.
 
-- **Fraud detection** (e.g., payments, abuse detection)  
-- **Security AI** (LLMs + security pipelines, anomaly detection)  
-- **Mission-critical ML** where reliability matters as much as accuracy
+If you're building something ambitious and want someone who thinks about security, scale, and how things actually break in production—let's talk.
 
+---
 
-
-## How I work
-
-- **Plan-driven:** I follow a written, time-bounded roadmap instead of jumping randomly between topics.  
-- **Project-first:** I anchor learning in **concrete projects** (e.g., ThreatLens, static site generator) rather than pure theory.  
-- **Feedback-seeking:** I iterate based on feedback from instructors, peers, and real interview-style problems.
+**📧 lokeshlks01@gmail.com** | **💼 [website](https://lkslokesh.com)** | **💻 [GitHub](https://github.com/loki52501)**
