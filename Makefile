@@ -8,7 +8,7 @@ LDFLAGS = -lsqlite3
 TARGET = site_generator
 
 # Source files
-SOURCES = src/main.cpp src/markdown_parser.cpp src/blog_database.cpp src/jupyter_parser.cpp
+SOURCES = src/main.cpp src/markdown_parser.cpp src/blog_database.cpp src/jupyter_parser.cpp src/file_utils.cpp src/metadata.cpp src/cache.cpp src/toc.cpp src/category.cpp src/content_tree.cpp src/navigation.cpp src/sidebar.cpp src/template.cpp src/listing.cpp src/processor.cpp
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

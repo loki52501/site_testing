@@ -12,13 +12,20 @@ A lightweight, custom-built static site generator written in C++ that converts M
   - Code blocks and inline code
   - Paragraphs
 
-- **Template System**: Uses HTML templates with placeholders
-- **Auto-generated Navigation**: Automatically creates nav links for all pages
-- **Clean Design**: Minimalistic, centered layout with responsive design
-- **Easy to Update**: Just edit markdown files and rebuild
+- **Jupyter Notebook Support**: Convert .ipynb files to HTML
+- **Modular Architecture**: Clean, organized codebase split into feature-based modules
+- **Dynamic Categories**: Auto-discover categories from folder structure
+- **Incremental Builds**: Smart caching to only rebuild changed files
+- **Hierarchical Content**: Support for nested subcategories
+- **Search & Filter**: Client-side search with category filtering
+- **SQLite Database**: Structured blog metadata storage
+- **Table of Contents**: Auto-generated TOCs for long posts
+- **Pagination**: Automatic pagination for blog listings
+- **Template System**: Flexible HTML templates with placeholders
+- **Auto-generated Navigation**: Dynamic nav links and sidebars
+- **Clean Design**: Minimalistic, responsive layout
 - **GitHub Pages Ready**: Automatic deployment via GitHub Actions
 - **Web-based CMS**: Simple interface for creating blog posts
-- **Helper Scripts**: Command-line tools for managing content
 
 ## Project Structure
 
@@ -26,29 +33,65 @@ A lightweight, custom-built static site generator written in C++ that converts M
 custom_blog_static_site_generator/
 ├── .github/
 │   └── workflows/
-│       └── build-site.yml      # GitHub Actions auto-deployment
+│       └── build-site.yml          # GitHub Actions auto-deployment
 ├── cms/
-│   └── index.html              # Web-based CMS interface
-├── include/
-│   └── markdown_parser.h       # Header file for markdown parser
-├── src/
-│   ├── main.cpp                # Main program
-│   └── markdown_parser.cpp     # Markdown parser implementation
+│   └── index.html                  # Web-based CMS interface
+├── include/                        # Header files (modular architecture)
+│   ├── structures.h                # Data structures (Page, BlogPost, etc.)
+│   ├── file_utils.h                # File I/O operations
+│   ├── metadata.h                  # Title/excerpt extraction
+│   ├── cache.h                     # Build cache management
+│   ├── toc.h                       # Table of contents generation
+│   ├── category.h                  # Category management
+│   ├── content_tree.h              # Content tree building
+│   ├── navigation.h                # Navigation menu generation
+│   ├── sidebar.h                   # Sidebar generation
+│   ├── template.h                  # Template application
+│   ├── listing.h                   # Blog listing pages
+│   ├── processor.h                 # Content processing
+│   ├── markdown_parser.h           # Markdown parser
+│   ├── blog_database.h             # SQLite database
+│   └── jupyter_parser.h            # Jupyter notebook support
+├── src/                            # Implementation files
+│   ├── main.cpp                    # Main orchestrator (simplified)
+│   ├── file_utils.cpp              # File operations
+│   ├── metadata.cpp                # Metadata extraction
+│   ├── cache.cpp                   # Cache management
+│   ├── toc.cpp                     # TOC generation
+│   ├── category.cpp                # Category handling
+│   ├── content_tree.cpp            # Tree building
+│   ├── navigation.cpp              # Nav rendering
+│   ├── sidebar.cpp                 # Sidebar rendering
+│   ├── template.cpp                # Template processing
+│   ├── listing.cpp                 # Listing generation
+│   ├── processor.cpp               # Content processing
+│   ├── markdown_parser.cpp         # Markdown parsing
+│   ├── blog_database.cpp           # Database operations
+│   └── jupyter_parser.cpp          # Notebook parsing
 ├── templates/
-│   └── template.html           # HTML template
+│   ├── template.html               # HTML template
+│   ├── style.css                   # Stylesheet
+│   └── search.js                   # Search functionality
 ├── content/
-│   ├── index.md                # Home page
-│   ├── about.md                # About page
-│   └── projects.md             # Projects page
-├── docs/                       # Generated HTML files (GitHub Pages)
+│   ├── blog/                       # Blog posts (organized by category)
+│   │   ├── tech/                   # Tech category
+│   │   ├── books/                  # Books category
+│   │   ├── movies/                 # Movies category
+│   │   └── random/                 # Random category
+│   ├── index.md                    # Home page
+│   ├── about.md                    # About page
+│   └── projects.md                 # Projects page
+├── docs/                           # Generated HTML (GitHub Pages)
 ├── scripts/
-│   ├── new-post.sh             # Create new post (Linux/Mac)
-│   ├── new-post.bat            # Create new post (Windows)
-│   └── deploy.sh               # Build and deploy script
-├── CMakeLists.txt              # CMake build configuration
-├── Makefile                    # Simple Makefile
-├── README.md                   # This file
-└── DEPLOYMENT.md               # GitHub Pages deployment guide
+│   ├── new-post.sh                 # Create new post (Linux/Mac)
+│   ├── new-post.bat                # Create new post (Windows)
+│   └── deploy.sh                   # Build and deploy
+├── CMakeLists.txt                  # CMake build configuration
+├── Makefile                        # Make build configuration
+├── README.md                       # This file
+├── DEPLOYMENT.md                   # Deployment guide
+├── MODULARIZATION_STATUS.md        # Module documentation
+└── .build_cache                    # Incremental build cache
 ```
 
 ## Building the Project
@@ -238,27 +281,67 @@ code block
 - CMake 3.10+ (if using CMake)
 - Make (if using Makefile)
 
+## Architecture
+
+This project follows a **modular architecture** with clear separation of concerns:
+
+### Core Modules
+- **structures**: Shared data structures used across modules
+- **file_utils**: File reading/writing operations
+- **metadata**: Extract titles, excerpts, and dates from content
+- **cache**: Incremental build system using file hashes
+
+### Content Management
+- **content_tree**: Build hierarchical content structure from filesystem
+- **category**: Dynamic category discovery and management
+- **processor**: Process and convert content files to HTML
+
+### HTML Generation
+- **template**: Apply HTML templates with placeholder replacement
+- **navigation**: Generate navigation menus
+- **sidebar**: Generate category sidebars with nesting
+- **toc**: Generate table of contents from headings
+- **listing**: Generate paginated blog listing pages
+
+### Existing Modules
+- **markdown_parser**: Convert Markdown to HTML
+- **jupyter_parser**: Convert Jupyter notebooks to HTML
+- **blog_database**: SQLite database for blog metadata
+
+This architecture makes it easy to:
+- Add new features (e.g., RSS feed generation)
+- Modify specific functionality without touching other code
+- Test individual modules
+- Understand code organization by feature
+
 ## Learning Notes (for C++ Beginners)
 
 This project demonstrates several C++ concepts:
+- **Modular Design**: Feature-based code organization
 - **Object-Oriented Programming**: Classes and methods
 - **File I/O**: Reading and writing files
 - **String Processing**: Regex, string manipulation
-- **STL Containers**: vectors, maps, strings
+- **STL Containers**: vectors, maps, sets, strings
 - **Filesystem Library**: Directory iteration (C++17)
 - **Build Systems**: Makefiles and CMake
-Good luck
+- **Memory Management**: Manual tree allocation/deallocation
 
 ## Future Enhancements
 
 Possible improvements you can add:
-- [ ] Support for custom metadata (dates, authors)
-- [ ] CSS/JS asset copying
-- [ ] Blog post sorting by date
+- [x] Support for custom metadata (dates, categories) ✅
+- [x] CSS/JS asset copying ✅
+- [x] Blog post sorting by date ✅
+- [x] Incremental builds with caching ✅
+- [x] Dynamic category discovery ✅
+- [x] Hierarchical content structure ✅
+- [x] Jupyter notebook support ✅
+- [ ] RSS feed generation (planned - easy to add as new module!)
 - [ ] Syntax highlighting for code blocks
-- [ ] RSS feed generation
 - [ ] Custom page templates
 - [ ] Live reload server
+- [ ] Sitemap generation
+- [ ] Social media meta tags
 
 ## License
 

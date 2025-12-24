@@ -26,7 +26,7 @@
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [1]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 ! [ -e /content ] &amp;&amp; pip install -Uqq fastbook
 import fastbook
 fastbook.setup_book()</code></pre>
@@ -34,7 +34,7 @@ fastbook.setup_book()</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [2]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 from fastbook import *
 from fastai.vision.widgets import *</code></pre>
     </div>
@@ -197,7 +197,7 @@ from fastai.vision.widgets import *</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [3]:</div>
-      <pre class="line-numbers"><code class="language-python">key = os.environ.get(&#39;AZURE_SEARCH_KEY&#39;, &#39;XXX&#39;)</code></pre>
+      <pre><code class="language-python">key = os.environ.get(&#39;AZURE_SEARCH_KEY&#39;, &#39;XXX&#39;)</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <p>Or, if you're comfortable at the command line, you can set it in your terminal with:</p>
@@ -209,7 +209,7 @@ from fastai.vision.widgets import *</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">search_images_bing</code></pre>
+      <pre><code class="language-python">search_images_bing</code></pre>
     </div>
     <div class="nb-output">
       <pre>&lt;function fastbook.search_images_bing(key, term, min_sz=128, max_images=150)&gt;</pre>
@@ -218,7 +218,7 @@ from fastai.vision.widgets import *</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">results = search_images_bing(key, &#39;grizzly bear&#39;)
+      <pre><code class="language-python">results = search_images_bing(key, &#39;grizzly bear&#39;)
 ims = results.attrgot(&#39;contentUrl&#39;)
 len(ims)</code></pre>
     </div>
@@ -235,19 +235,19 @@ len(ims)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 ims = [&#39;http://3.bp.blogspot.com/-S1scRCkI3vY/UHzV2kucsPI/AAAAAAAAA-k/YQ5UzHEm9Ss/s1600/Grizzly%2BBear%2BWildlife.jpg&#39;]</code></pre>
     </div>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">dest = &#39;images/grizzly.jpg&#39;
+      <pre><code class="language-python">dest = &#39;images/grizzly.jpg&#39;
 download_url(ims[0], dest)</code></pre>
     </div>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">im = Image.open(dest)
+      <pre><code class="language-python">im = Image.open(dest)
 im.to_thumb(128,128)</code></pre>
     </div>
     <div class="nb-output">
@@ -261,13 +261,13 @@ im.to_thumb(128,128)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bear_types = &#39;grizzly&#39;,&#39;black&#39;,&#39;teddy&#39;
+      <pre><code class="language-python">bear_types = &#39;grizzly&#39;,&#39;black&#39;,&#39;teddy&#39;
 path = Path(&#39;bears&#39;)</code></pre>
     </div>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">if not path.exists():
+      <pre><code class="language-python">if not path.exists():
     path.mkdir()
     for o in bear_types:
         dest = (path/o)
@@ -292,7 +292,7 @@ path = Path(&#39;bears&#39;)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">fns = get_image_files(path)
+      <pre><code class="language-python">fns = get_image_files(path)
 fns</code></pre>
     </div>
     <div class="nb-output">
@@ -310,7 +310,7 @@ fns</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">failed = verify_images(fns)
+      <pre><code class="language-python">failed = verify_images(fns)
 failed</code></pre>
     </div>
     <div class="nb-output">
@@ -327,7 +327,7 @@ failed</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">failed.map(Path.unlink);</code></pre>
+      <pre><code class="language-python">failed.map(Path.unlink);</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <h3 id="sidebar-getting-help-in-jupyter-notebooks">Sidebar: Getting Help in Jupyter Notebooks</h3>
@@ -408,7 +408,7 @@ Type:      function
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = DataBlock(
+      <pre><code class="language-python">bears = DataBlock(
     blocks=(ImageBlock, CategoryBlock), 
     get_items=get_image_files, 
     splitter=RandomSplitter(valid_pct=0.2, seed=42),
@@ -437,7 +437,7 @@ Type:      function
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">dls = bears.dataloaders(path)</code></pre>
+      <pre><code class="language-python">dls = bears.dataloaders(path)</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <p>A <code>DataLoaders</code> includes validation and training <code>DataLoader</code>s. <code>DataLoader</code> is a class that provides batches of a few items at a time to the GPU. We'll be learning a lot more about this class in the next chapter. When you loop through a <code>DataLoader</code> fastai will give you 64 (by default) items at a time, all stacked up into a single tensor. We can take a look at a few of those items by calling the <code>show_batch</code> method on a <code>DataLoader</code>:</p>
@@ -446,7 +446,7 @@ Type:      function
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
+      <pre><code class="language-python">dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
     </div>
     <div class="nb-output">
       <img src="../images/notebooks/02_production_cell72_out1.png" alt="Output 1" />
@@ -459,7 +459,7 @@ Type:      function
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = bears.new(item_tfms=Resize(128, ResizeMethod.Squish))
+      <pre><code class="language-python">bears = bears.new(item_tfms=Resize(128, ResizeMethod.Squish))
 dls = bears.dataloaders(path)
 dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
     </div>
@@ -470,7 +470,7 @@ dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = bears.new(item_tfms=Resize(128, ResizeMethod.Pad, pad_mode=&#39;zeros&#39;))
+      <pre><code class="language-python">bears = bears.new(item_tfms=Resize(128, ResizeMethod.Pad, pad_mode=&#39;zeros&#39;))
 dls = bears.dataloaders(path)
 dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
     </div>
@@ -488,7 +488,7 @@ dls.valid.show_batch(max_n=4, nrows=1)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = bears.new(item_tfms=RandomResizedCrop(128, min_scale=0.3))
+      <pre><code class="language-python">bears = bears.new(item_tfms=RandomResizedCrop(128, min_scale=0.3))
 dls = bears.dataloaders(path)
 dls.train.show_batch(max_n=4, nrows=1, unique=True)</code></pre>
     </div>
@@ -511,7 +511,7 @@ dls.train.show_batch(max_n=4, nrows=1, unique=True)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = bears.new(item_tfms=Resize(128), batch_tfms=aug_transforms(mult=2))
+      <pre><code class="language-python">bears = bears.new(item_tfms=Resize(128), batch_tfms=aug_transforms(mult=2))
 dls = bears.dataloaders(path)
 dls.train.show_batch(max_n=8, nrows=2, unique=True)</code></pre>
     </div>
@@ -535,7 +535,7 @@ dls.train.show_batch(max_n=8, nrows=2, unique=True)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">bears = bears.new(
+      <pre><code class="language-python">bears = bears.new(
     item_tfms=RandomResizedCrop(224, min_scale=0.5),
     batch_tfms=aug_transforms())
 dls = bears.dataloaders(path)</code></pre>
@@ -547,7 +547,7 @@ dls = bears.dataloaders(path)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">learn = vision_learner(dls, resnet18, metrics=error_rate)
+      <pre><code class="language-python">learn = vision_learner(dls, resnet18, metrics=error_rate)
 learn.fine_tune(4)</code></pre>
     </div>
     <div class="nb-output">
@@ -623,7 +623,7 @@ learn.fine_tune(4)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">interp = ClassificationInterpretation.from_learner(learn)
+      <pre><code class="language-python">interp = ClassificationInterpretation.from_learner(learn)
 interp.plot_confusion_matrix()</code></pre>
     </div>
     <div class="nb-output">
@@ -642,7 +642,7 @@ interp.plot_confusion_matrix()</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">interp.plot_top_losses(5, nrows=1)</code></pre>
+      <pre><code class="language-python">interp.plot_top_losses(5, nrows=1)</code></pre>
     </div>
     <div class="nb-output">
       <img src="../images/notebooks/02_production_cell91_out1.png" alt="Output 1" />
@@ -657,7 +657,7 @@ interp.plot_confusion_matrix()</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 cleaner = ImageClassifierCleaner(learn)
 cleaner</code></pre>
     </div>
@@ -678,7 +678,7 @@ cleaner</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 # for idx in cleaner.delete(): cleaner.fns[idx].unlink()
 # for idx,cat in cleaner.change(): shutil.move(str(cleaner.fns[idx]), path/cat)</code></pre>
     </div>
@@ -720,7 +720,7 @@ cleaner</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">learn.export()</code></pre>
+      <pre><code class="language-python">learn.export()</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <p>Let's check that the file exists, by using the <code>ls</code> method that fastai adds to Python's <code>Path</code> class:</p>
@@ -729,7 +729,7 @@ cleaner</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">path = Path()
+      <pre><code class="language-python">path = Path()
 path.ls(file_exts=&#39;.pkl&#39;)</code></pre>
     </div>
     <div class="nb-output">
@@ -744,7 +744,7 @@ path.ls(file_exts=&#39;.pkl&#39;)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">learn_inf = load_learner(path/&#39;export.pkl&#39;)</code></pre>
+      <pre><code class="language-python">learn_inf = load_learner(path/&#39;export.pkl&#39;)</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <p>When we're doing inference, we're generally just getting predictions for one image at a time. To do this, pass a filename to <code>predict</code>:</p>
@@ -753,7 +753,7 @@ path.ls(file_exts=&#39;.pkl&#39;)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">learn_inf.predict(&#39;images/grizzly.jpg&#39;)</code></pre>
+      <pre><code class="language-python">learn_inf.predict(&#39;images/grizzly.jpg&#39;)</code></pre>
     </div>
     <div class="nb-output">
       <div class="nb-html-output"></div>
@@ -769,7 +769,7 @@ path.ls(file_exts=&#39;.pkl&#39;)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">learn_inf.dls.vocab</code></pre>
+      <pre><code class="language-python">learn_inf.dls.vocab</code></pre>
     </div>
     <div class="nb-output">
       <pre>(#3) [&#39;black&#39;,&#39;grizzly&#39;,&#39;teddy&#39;]</pre>
@@ -802,7 +802,7 @@ path.ls(file_exts=&#39;.pkl&#39;)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 btn_upload = widgets.FileUpload()
 btn_upload</code></pre>
     </div>
@@ -818,14 +818,14 @@ btn_upload</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 # For the book, we can&#39;t actually click an upload button, so we fake it
 btn_upload = SimpleNamespace(data = [&#39;images/grizzly.jpg&#39;])</code></pre>
     </div>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">img = PILImage.create(btn_upload.data[-1])</code></pre>
+      <pre><code class="language-python">img = PILImage.create(btn_upload.data[-1])</code></pre>
     </div>
   <div class="nb-cell nb-markdown-cell">
     <p><img alt="Output widget representing the image" width="117" src="images/att_00009.png"></p>
@@ -838,7 +838,7 @@ btn_upload = SimpleNamespace(data = [&#39;images/grizzly.jpg&#39;])</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 out_pl = widgets.Output()
 out_pl.clear_output()
 with out_pl: display(img.to_thumb(128,128))
@@ -852,7 +852,7 @@ out_pl</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">pred,pred_idx,probs = learn_inf.predict(img)</code></pre>
+      <pre><code class="language-python">pred,pred_idx,probs = learn_inf.predict(img)</code></pre>
     </div>
     <div class="nb-output">
       <div class="nb-html-output"></div>
@@ -865,7 +865,7 @@ out_pl</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 lbl_pred = widgets.Label()
 lbl_pred.value = f&#39;Prediction: {pred}; Probability: {probs[pred_idx]:.04f}&#39;
 lbl_pred</code></pre>
@@ -882,7 +882,7 @@ lbl_pred</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 btn_run = widgets.Button(description=&#39;Classify&#39;)
 btn_run</code></pre>
     </div>
@@ -897,7 +897,7 @@ btn_run</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">def on_click_classify(change):
+      <pre><code class="language-python">def on_click_classify(change):
     img = PILImage.create(btn_upload.data[-1])
     out_pl.clear_output()
     with out_pl: display(img.to_thumb(128,128))
@@ -914,14 +914,14 @@ btn_run.on_click(on_click_classify)</code></pre>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 #Putting back btn_upload to a widget for next cell
 btn_upload = widgets.FileUpload()</code></pre>
     </div>
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide_output
+      <pre><code class="language-python">#hide_output
 VBox([widgets.Label(&#39;Select your bear!&#39;), 
       btn_upload, btn_run, out_pl, lbl_pred])</code></pre>
     </div>
@@ -944,7 +944,7 @@ VBox([widgets.Label(&#39;Select your bear!&#39;),
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python">#hide
+      <pre><code class="language-python">#hide
 # !pip install voila
 # !jupyter serverextension enable --sys-prefix voila </code></pre>
     </div>
@@ -1129,7 +1129,7 @@ ____
   <div class="nb-cell nb-code-cell">
     <div class="nb-input">
       <div class="nb-input-prompt">In [ ]:</div>
-      <pre class="line-numbers"><code class="language-python"></code></pre>
+      <pre><code class="language-python"></code></pre>
     </div>
 </div>
 
