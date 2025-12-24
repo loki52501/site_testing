@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
 </head>
 <body>
     <nav>
@@ -20,36 +23,55 @@
         
         <div class="content-wrapper">
             <div class="blog-container">
-    <aside class="blog-sidebar">
-        <nav class="sidebar-menu">
-            <h3>Categories</h3>
-            <ul>
-                <li><a href="blogs.html">All Posts</a></li>
-                <li><a href="tech.html" class="active">Tech</a></li>
-                <li><a href="movies.html">Movies</a></li>
-                <li><a href="random.html">Thoughtful</a></li>
+<aside class="blog-sidebar">
+    <nav class="sidebar-menu">
+        <h3>Categories</h3>
+        <ul>
+            <li><a href="blogs.html">All Posts</a></li>
+        <li class="category-item">
+            <a href="books.html">Books</a>
+        </li>
+        <li class="category-item">
+            <a href="movies.html">Movies</a>
+        </li>
+        <li class="category-item">
+            <a href="random.html">Random</a>
+        </li>
+        <li class="category-item">
+            <a href="tech.html" class="active">Tech</a>
+            <ul class="subcategory-list">
+            <li class="category-item">
+                <a href="AI.html">AI</a>
+            </li>
+            <li class="category-item">
+                <a href="Thinking like a engineer.html">Thinking Like A Engineer</a>
+            </li>
             </ul>
-        </nav>
-    </aside>
+        </li>
+        </ul>
+    </nav>
+</aside>
     <div class="blog-content">
         <h1>Tech Blog</h1>
         <p>Technology, programming, and software development</p>
 
-        <div class="blog-list">
+        <div class="blog-list" id="search-results">
+            <article class="blog-item">
+                <h2><a href="blog/tech/quic-protocol-optimizations.html">QUIC Transport Optimizations from a Reimplementation</a></h2>
+                <p class="blog-date">Published on December 13, 2025 at 03:45 PM</p>
+                <p class="blog-excerpt">Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered. - C++ QUIC transport with custom congestion control and...</p>
+                <a href="blog/tech/quic-protocol-optimizations.html" class="read-more">Read more →</a>
+            </article>
             <article class="blog-item">
                 <h2><a href="blog/tech/shortest_path_algorithms.html">Shortest path algorithms</a></h2>
                 <p class="blog-date">Published on December 13, 2025 at 03:45 PM</p>
-                <p class="blog-excerpt"><ol>
-  <li>we are gonna look at Dijkstra Algorithm: this algorithm gives us a pathway to find the shortest path provided there are no negative weights between source and destination. I could use a diagram to...</li>
-</ol>
-</p>
+                <p class="blog-excerpt">1. we are gonna look at Dijkstra Algorithm: this algorithm gives us a pathway to find the shortest path provided there are no negative weights between source and destination. I could use a diagram to...</p>
                 <a href="blog/tech/shortest_path_algorithms.html" class="read-more">Read more →</a>
             </article>
             <article class="blog-item">
                 <h2><a href="blog/tech/security-internships-notes.html">Notes from Security Internships</a></h2>
                 <p class="blog-date">Published on December 13, 2025 at 03:39 PM</p>
-                <p class="blog-excerpt"><p>Highlights across identity, cloud security, and network detection work. All lead to choosing my cybersecurity career.  - Automated onboarding/offboarding across Ivanti, Google Workspace, and AD; cut...</p>
-</p>
+                <p class="blog-excerpt">Highlights across identity, cloud security, and network detection work. All lead to choosing my cybersecurity career.  - Automated onboarding/offboarding across Ivanti, Google Workspace, and AD; cut...</p>
                 <a href="blog/tech/security-internships-notes.html" class="read-more">Read more →</a>
             </article>
         </div>
@@ -63,7 +85,149 @@
     <span class="pagination-btn disabled">Next &rarr;</span>
 </nav>
     </div>
+    <aside class="search-sidebar">
+        <div class="search-sidebar-sticky">
+            <h3>Search & Filter</h3>
+            <input type="text" id="blog-search" placeholder="Search posts..." aria-label="Search blogs">
+            
+            <div class="search-filters">
+                <h4>Filter by Category</h4>
+                <div class="category-filters">
+                    <a href="#" class="category-filter" data-category="tech">Tech</a>
+                </div>
+            </div>
+            
+            <div class="sort-control">
+                <label for="blog-sort">Sort by</label>
+                <select id="blog-sort">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="title-asc">Title (A-Z)</option>
+                    <option value="title-desc">Title (Z-A)</option>
+                </select>
+            </div>
+            
+            <p id="result-count" class="result-count"></p>
+        </div>
+    </aside>
 </div>
+<script>
+// Embedded blog data to avoid CORS issues
+window.BLOG_DATA = {
+  "blogs": [
+    {
+      "id": 1,
+      "title": "From Model to Production",
+      "excerpt": "Jupyter notebook",
+      "category": "uncategorized",
+      "publishDate": "December 24, 2025 at 11:22 AM",
+      "url": "blog/02_production.html",
+      "timestamp": 1766593379
+    },
+    {
+      "id": 2,
+      "title": "Theory of Everything by Stephen Hawking",
+      "excerpt": "I'm pumped up to find more things on space as ever before, if my career trajectory could go on that direction, I would be so grateful. I want to work with netflix, spacex, and I would like to be a...",
+      "category": "books",
+      "publishDate": "December 23, 2025 at 11:49 PM",
+      "url": "blog/books/books/Theory of Everything.html",
+      "timestamp": 1766551775
+    },
+    {
+      "id": 3,
+      "title": "Data Models",
+      "excerpt": "Data models is a template , more like a schema, but with how data is collected for the applicaton, how it should be structured, and the rules it should follow.  Without data models the organization...",
+      "category": "tech",
+      "publishDate": "December 23, 2025 at 10:49 PM",
+      "url": "blog/tech/tech/Thinking like a engineer/DDIA_CH2.html",
+      "timestamp": 1766548168
+    },
+    {
+      "id": 4,
+      "title": "Deep Learning Q&A Notes",
+      "excerpt": "- Detecting anomalies in cybersecurity - Medicine - Self-driving cars - Natural language processing - Robotics and recommendation systems **Q: What was the name of the first device based on the...",
+      "category": "tech",
+      "publishDate": "December 22, 2025 at 10:55 PM",
+      "url": "blog/tech/tech/AI/fastai_ch1.html",
+      "timestamp": 1766462156
+    },
+    {
+      "id": 5,
+      "title": "My readings on DDIA ch1",
+      "excerpt": " Most systems today are lacking architecture for data intensive , than compute intensive, as there is more power for compute intensive than the idea or how to manipulate huge amounts of data to a...",
+      "category": "tech",
+      "publishDate": "December 22, 2025 at 04:01 PM",
+      "url": "blog/tech/tech/Thinking like a engineer/DDIA_CH1.html",
+      "timestamp": 1766437268
+    },
+    {
+      "id": 6,
+      "title": "Thought and multiplexers",
+      "excerpt": "",
+      "category": "random",
+      "publishDate": "December 13, 2025 at 05:27 PM",
+      "url": "blog/random/random/multiplexers.html",
+      "timestamp": 1765664831
+    },
+    {
+      "id": 7,
+      "title": "Interstellar",
+      "excerpt": "Interstellar is more anthropocentric, watching it for the 10th time, I realized it. I loved Han Zimmer’s musical, it was so aptly describes each and every situation, mostly the important ones, the...",
+      "category": "movies",
+      "publishDate": "December 13, 2025 at 05:16 PM",
+      "url": "blog/movies/movies/Interstellar.html",
+      "timestamp": 1765664206
+    },
+    {
+      "id": 8,
+      "title": "My quantum degree",
+      "excerpt": "I was working in google's qubit web and I really liked what I was doing , the more I learn, the more I was thinking how it could be used in modern workspace. I'm still think about it. Now I'm here to...",
+      "category": "tech",
+      "publishDate": "December 13, 2025 at 04:07 PM",
+      "url": "blog/tech/tech/degree.html",
+      "timestamp": 1765660079
+    },
+    {
+      "id": 9,
+      "title": "AI-Driven Streaming Infra: Keeping Playback Smooth",
+      "excerpt": "I built an adaptive streaming platform that uses AI-based bitrate prediction to reduce buffering when networks fluctuate. This was amazing. - Python + FastAPI on AWS EC2 - React client with SSE for...",
+      "category": "tech",
+      "publishDate": "December 13, 2025 at 03:45 PM",
+      "url": "blog/tech/tech/AI/ai-streaming-infra.html",
+      "timestamp": 1765658749
+    },
+    {
+      "id": 10,
+      "title": "QUIC Transport Optimizations from a Reimplementation",
+      "excerpt": "Reimplementing QUIC in C++ gave me room to tune congestion control and pacing. Here’s what moved the needle and why packet captures mattered. - C++ QUIC transport with custom congestion control and...",
+      "category": "tech",
+      "publishDate": "December 13, 2025 at 03:45 PM",
+      "url": "blog/tech/tech/quic-protocol-optimizations.html",
+      "timestamp": 1765658741
+    },
+    {
+      "id": 11,
+      "title": "Shortest path algorithms",
+      "excerpt": "1. we are gonna look at Dijkstra Algorithm: this algorithm gives us a pathway to find the shortest path provided there are no negative weights between source and destination. I could use a diagram to...",
+      "category": "tech",
+      "publishDate": "December 13, 2025 at 03:45 PM",
+      "url": "blog/tech/tech/shortest_path_algorithms.html",
+      "timestamp": 1765658730
+    },
+    {
+      "id": 12,
+      "title": "Notes from Security Internships",
+      "excerpt": "Highlights across identity, cloud security, and network detection work. All lead to choosing my cybersecurity career.  - Automated onboarding/offboarding across Ivanti, Google Workspace, and AD; cut...",
+      "category": "tech",
+      "publishDate": "December 13, 2025 at 03:39 PM",
+      "url": "blog/tech/tech/security-internships-notes.html",
+      "timestamp": 1765658369
+    }
+  ]
+}
+;
+</script>
+<script src="search.js"></script>
 
         </div>
     </main>
@@ -76,5 +240,13 @@
         </div>
         <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
     </footer>
+
+    <!-- Prism.js scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-julia.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

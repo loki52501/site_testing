@@ -2,13 +2,13 @@
 
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude
-LDFLAGS =
+LDFLAGS = -lsqlite3
 
 # Executable name
 TARGET = site_generator
 
 # Source files
-SOURCES = src/main.cpp src/markdown_parser.cpp
+SOURCES = src/main.cpp src/markdown_parser.cpp src/blog_database.cpp src/jupyter_parser.cpp
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)

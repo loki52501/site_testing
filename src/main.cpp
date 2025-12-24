@@ -4,11 +4,14 @@
 #include <filesystem>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <ctime>
 #include <iomanip>
 #include <functional>
 #include "../include/markdown_parser.h"
+#include "../include/blog_database.h"
+#include "../include/jupyter_parser.h"
 
 namespace fs = std::filesystem;
 
@@ -35,6 +38,63 @@ struct CachedMetadata {
     std::string publishDate;
     std::time_t timestamp;
     std::time_t fileModTime;  // File modification time for change detection
+};
+
+// Node types for content tree
+enum NodeType {
+    NODE_FILE,
+    NODE_DIRECTORY
+};
+
+// Content tree node for hierarchical content structure
+struct ContentNode {
+    std::string name;                           // Folder/file name (e.g., "tech", "about.md")
+    std::string displayName;                    // Human-readable name (e.g., "Tech", "About")
+    std::string path;                           // Relative path from content root
+    std::string outputPath;                     // HTML output path
+    NodeType type;                              // FILE or DIRECTORY
+    int depth;                                  // Depth in tree (0 = root)
+
+    // File metadata
+    std::string title;                          // Extracted from markdown
+    std::string content;                        // HTML content
+    std::string excerpt;                        // For listing pages
+    std::string publishDate;                    // For sorting
+    std::time_t timestamp;                      // For sorting
+
+    // Directory tree
+    std::vector<ContentNode*> children;         // Child nodes
+    ContentNode* parent;                        // Parent node
+    bool hasIndexFile;                          // Whether index.md exists
+
+    // Constructor
+    ContentNode() : type(NODE_FILE), depth(0), timestamp(0), parent(nullptr), hasIndexFile(false) {}
+};
+
+// Navigation item for dynamic navbar generation
+struct NavigationItem {
+    std::string displayName;                    // "Blog", "About"
+    std::string url;                            // "blogs.html", "about.html"
+    int order;                                  // For sorting
+
+    // Constructor
+    NavigationItem() : order(0) {}
+};
+
+// Section configuration for listing pages
+struct SectionConfig {
+    std::string sectionName;                    // "blogs", "projects", "photos"
+    std::string displayName;                    // "Blog", "Projects", "Photos"
+    bool enableListing;                         // Generate listing pages
+    bool enableSearch;                          // Enable search functionality
+    bool enableSidebar;                         // Show category sidebar
+    bool sortByDate;                            // Sort by date vs alphabetical
+    int postsPerPage;                           // Pagination count
+    bool showExcerpts;                          // Show excerpts on listings
+
+    // Constructor
+    SectionConfig() : enableListing(true), enableSearch(false), enableSidebar(false),
+                     sortByDate(false), postsPerPage(10), showExcerpts(true) {}
 };
 
 std::string readFile(const std::string& filepath) {
@@ -293,6 +353,289 @@ bool needsBlogRegeneration(const std::string& sourcePath, const std::string& sou
     return false; // Content unchanged
 }
 
+// ==================== Content Tree Building Functions ====================
+
+/**
+ * Format display name from folder/file name
+ * Examples: "tech" -> "Tech", "my-projects" -> "My Projects", "about.md" -> "About"
+ */
+std::string formatDisplayName(const std::string& name) {
+    std::string display = name;
+
+    // Remove extension if present
+    size_t dotPos = display.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        display = display.substr(0, dotPos);
+    }
+
+    // Replace hyphens/underscores with spaces
+    std::replace(display.begin(), display.end(), '-', ' ');
+    std::replace(display.begin(), display.end(), '_', ' ');
+
+    // Capitalize first letter of each word
+    bool capitalize = true;
+    for (char& c : display) {
+        if (capitalize && std::isalpha(c)) {
+            c = std::toupper(c);
+            capitalize = false;
+        } else if (c == ' ') {
+            capitalize = true;
+        }
+    }
+
+    return display;
+}
+
+/**
+ * Calculate output HTML path based on position in tree
+ */
+std::string calculateOutputPath(ContentNode* node) {
+    std::vector<std::string> pathParts;
+
+    ContentNode* current = node;
+    while (current) {
+        if (current->type == NODE_FILE) {
+            // For files, use stem (filename without extension) + .html
+            std::string filename = fs::path(current->name).stem().string();
+            pathParts.insert(pathParts.begin(), filename + ".html");
+        } else {
+            // For directories, add the folder name (including root)
+            pathParts.insert(pathParts.begin(), current->name);
+        }
+        current = current->parent;
+    }
+
+    // Join path parts
+    std::string result;
+    for (size_t i = 0; i < pathParts.size(); i++) {
+        if (i > 0) result += "/";
+        result += pathParts[i];
+    }
+
+    return result;
+}
+
+/**
+ * Recursively build content tree from directory structure
+ *
+ * @param rootPath Starting directory (e.g., "content")
+ * @param parent Parent node (nullptr for root)
+ * @param depth Current depth in tree
+ * @return Root ContentNode with complete tree
+ */
+ContentNode* buildContentTree(const std::string& rootPath,
+                               ContentNode* parent = nullptr,
+                               int depth = 0) {
+    ContentNode* node = new ContentNode();
+    node->path = rootPath;
+    node->depth = depth;
+    node->parent = parent;
+
+    if (fs::is_directory(rootPath)) {
+        node->type = NODE_DIRECTORY;
+        node->name = fs::path(rootPath).filename().string();
+        node->displayName = formatDisplayName(node->name);
+
+        // Check for index.md
+        std::string indexPath = rootPath + "/index.md";
+        node->hasIndexFile = fs::exists(indexPath);
+
+        // Collect and sort entries
+        std::vector<fs::path> entries;
+        for (const auto& entry : fs::directory_iterator(rootPath)) {
+            std::string filename = entry.path().filename().string();
+            // Skip hidden files/folders and special directories
+            if (filename[0] == '.' || filename == "images") {
+                continue;
+            }
+            entries.push_back(entry.path());
+        }
+
+        // Sort entries alphabetically
+        std::sort(entries.begin(), entries.end());
+
+        // Recursively process children
+        for (const auto& entry : entries) {
+            ContentNode* child = buildContentTree(
+                entry.string(), node, depth + 1
+            );
+            if (child) {
+                node->children.push_back(child);
+            }
+        }
+    } else if (fs::is_regular_file(rootPath)) {
+        std::string extension = fs::path(rootPath).extension().string();
+        if (extension == ".md" || extension == ".ipynb") {
+            node->type = NODE_FILE;
+            node->name = fs::path(rootPath).filename().string();
+
+            // Read and parse file (basic metadata extraction)
+            std::string fileContent = readFile(rootPath);
+            if (!fileContent.empty()) {
+                if (extension == ".ipynb") {
+                    // Extract title from first markdown cell in notebook
+                    try {
+                        json notebook = json::parse(fileContent);
+                        bool foundTitle = false;
+                        if (notebook.contains("cells")) {
+                            for (const auto& cell : notebook["cells"]) {
+                                if (cell["cell_type"] == "markdown" && cell.contains("source")) {
+                                    std::string source;
+                                    if (cell["source"].is_string()) {
+                                        source = cell["source"];
+                                    } else if (cell["source"].is_array() && !cell["source"].empty()) {
+                                        source = cell["source"][0];
+                                    }
+                                    if (source.find("# ") == 0) {
+                                        node->title = source.substr(2);
+                                        // Remove newline
+                                        if (!node->title.empty() && node->title.back() == '\n') {
+                                            node->title.pop_back();
+                                        }
+                                        foundTitle = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!foundTitle) {
+                            node->title = fs::path(rootPath).stem().string();
+                        }
+                    } catch (...) {
+                        node->title = fs::path(rootPath).stem().string();
+                    }
+                    node->displayName = node->title;
+                    node->excerpt = "Jupyter notebook";
+                } else {
+                    // Markdown file
+                    node->title = extractTitle(fileContent);
+                    node->displayName = node->title;
+                    node->excerpt = extractExcerpt(fileContent);
+                }
+                node->publishDate = getFileModificationDate(rootPath);
+                node->timestamp = getFileModificationTimestamp(rootPath);
+            }
+
+            // Calculate output path
+            node->outputPath = calculateOutputPath(node);
+        } else {
+            // Not a markdown or notebook file, skip it
+            delete node;
+            return nullptr;
+        }
+    }
+
+    return node;
+}
+
+/**
+ * Free content tree memory recursively
+ */
+void freeContentTree(ContentNode* root) {
+    if (!root) return;
+
+    for (ContentNode* child : root->children) {
+        freeContentTree(child);
+    }
+
+    delete root;
+}
+
+/**
+ * Print content tree for debugging
+ */
+void printTree(ContentNode* node, int indent = 0) {
+    if (!node) return;
+
+    std::string indentStr(indent * 2, ' ');
+    std::string typeStr = (node->type == NODE_DIRECTORY) ? "[DIR]" : "[FILE]";
+
+    std::cout << indentStr << typeStr << " " << node->name;
+    if (node->type == NODE_DIRECTORY && node->hasIndexFile) {
+        std::cout << " (has index.md)";
+    }
+    if (node->type == NODE_FILE && !node->title.empty()) {
+        std::cout << " - \"" << node->title << "\"";
+    }
+    std::cout << std::endl;
+
+    for (ContentNode* child : node->children) {
+        printTree(child, indent + 1);
+    }
+}
+
+// ==================== Navigation Generation Functions ====================
+
+/**
+ * Generate navigation items from content tree
+ * Only top-level items appear in navbar
+ *
+ * @param root Root content node
+ * @return Vector of navigation items, alphabetically sorted
+ */
+std::vector<NavigationItem> generateNavigation(ContentNode* root) {
+    std::vector<NavigationItem> navItems;
+
+    if (!root) return navItems;
+
+    for (ContentNode* child : root->children) {
+        NavigationItem item;
+
+        if (child->type == NODE_FILE) {
+            // Single file at root level (e.g., about.md)
+            item.displayName = child->displayName;
+            item.url = child->outputPath;
+        } else if (child->type == NODE_DIRECTORY) {
+            // Folder becomes navbar item
+            item.displayName = child->displayName;
+
+            // Determine URL
+            if (child->hasIndexFile) {
+                // Links to index.html in that folder
+                item.url = child->name + "/index.html";
+            } else {
+                // Links to auto-generated listing page
+                item.url = child->name + ".html";
+            }
+        }
+
+        navItems.push_back(item);
+    }
+
+    // Sort alphabetically by display name
+    std::sort(navItems.begin(), navItems.end(),
+              [](const NavigationItem& a, const NavigationItem& b) {
+                  return a.displayName < b.displayName;
+              });
+
+    return navItems;
+}
+
+/**
+ * Render navigation HTML from navigation items
+ *
+ * @param navItems Navigation items to render
+ * @param subdirectoryDepth Depth for relative path calculation
+ * @return HTML string for navigation
+ */
+std::string renderNavigation(const std::vector<NavigationItem>& navItems,
+                             int subdirectoryDepth) {
+    std::stringstream nav;
+
+    // Calculate path prefix based on depth
+    std::string pathPrefix = "";
+    for (int i = 0; i < subdirectoryDepth; i++) {
+        pathPrefix += "../";
+    }
+
+    for (const auto& item : navItems) {
+        nav << "<a href=\"" << pathPrefix << item.url << "\">"
+            << item.displayName << "</a>";
+    }
+
+    return nav.str();
+}
+
 std::string applyTemplate(const std::string& templateContent, const std::string& title,
                           const std::string& content, const std::vector<Page>& pages, int subdirectoryDepth = 0,
                           const std::string& toc = "") {
@@ -356,7 +699,121 @@ std::string applyTemplate(const std::string& templateContent, const std::string&
     return result;
 }
 
-std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int pageNum, int postsPerPage, const std::string& category = "") {
+// ==================== Sidebar Generation Functions ====================
+
+/**
+ * Recursively render a sidebar category with nesting
+ *
+ * @param category Category node to render
+ * @param currentPath Current page path for highlighting
+ * @param nestLevel Nesting level for indentation
+ * @return HTML string for this category and its children
+ */
+std::string renderSidebarCategory(ContentNode* category,
+                                  const std::string& currentPath,
+                                  int nestLevel) {
+    std::stringstream html;
+
+    // Determine if this category is active
+    std::string categoryUrl = category->name + ".html";
+    bool isActive = currentPath.find(category->name) != std::string::npos;
+
+    // Indent based on nesting level
+    std::string indent(nestLevel * 4, ' ');
+
+    html << indent << "    <li class=\"category-item\">\n";
+
+    // Category link
+    html << indent << "        <a href=\"" << categoryUrl << "\""
+         << (isActive ? " class=\"active\"" : "") << ">"
+         << category->displayName << "</a>\n";
+
+    // If has subcategories, render nested list
+    bool hasSubcategories = false;
+    for (ContentNode* child : category->children) {
+        if (child->type == NODE_DIRECTORY) {
+            hasSubcategories = true;
+            break;
+        }
+    }
+
+    if (hasSubcategories) {
+        html << indent << "        <ul class=\"subcategory-list\">\n";
+        for (ContentNode* child : category->children) {
+            if (child->type == NODE_DIRECTORY) {
+                html << renderSidebarCategory(child, currentPath, nestLevel + 1);
+            }
+        }
+        html << indent << "        </ul>\n";
+    }
+
+    html << indent << "    </li>\n";
+
+    return html.str();
+}
+
+/**
+ * Generate hierarchical sidebar HTML for a section
+ * Shows all subcategories with expand/collapse functionality
+ *
+ * @param sectionNode Directory node for current section
+ * @param currentPath Current page path (to highlight active item)
+ * @return HTML string for sidebar
+ */
+std::string generateSidebar(ContentNode* sectionNode,
+                            const std::string& currentPath = "") {
+    std::stringstream html;
+
+    html << "<aside class=\"blog-sidebar\">\n";
+    html << "    <nav class=\"sidebar-menu\">\n";
+    html << "        <h3>Categories</h3>\n";
+    html << "        <ul>\n";
+
+    // Add "All Posts" link
+    // Special case: "blog" folder should link to "blogs.html"
+    std::string allPostsUrl = (sectionNode->name == "blog") ? "blogs.html" : sectionNode->name + ".html";
+    bool isAllActive = currentPath.empty() || currentPath == allPostsUrl;
+    html << "            <li><a href=\"" << allPostsUrl << "\""
+         << (isAllActive ? " class=\"active\"" : "")
+         << ">All Posts</a></li>\n";
+
+    // Recursively render category tree
+    for (ContentNode* child : sectionNode->children) {
+        if (child->type == NODE_DIRECTORY) {
+            html << renderSidebarCategory(child, currentPath, 1);
+        }
+    }
+
+    html << "        </ul>\n";
+    html << "    </nav>\n";
+    html << "</aside>\n";
+
+    return html.str();
+}
+
+// Helper function to get category display title
+std::string getCategoryTitle(const std::string& category) {
+    if (category.empty()) return "All Posts";
+    if (category == "tech") return "Tech Blog";
+    if (category == "movies") return "Movie Reviews";
+    if (category == "books") return "Books, My Readings";
+    if (category == "random") return "Random Thoughts";
+    // Default: format the category name nicely
+    return formatDisplayName(category);
+}
+
+// Helper function to get category description
+std::string getCategoryDescription(const std::string& category) {
+    if (category.empty()) return "All my blog posts";
+    if (category == "tech") return "Technology, programming, and software development";
+    if (category == "movies") return "Movie reviews, analysis, and recommendations";
+    if (category == "books") return "My book reviews, notes, and literary explorations";
+    if (category == "random") return "Random musings and miscellaneous topics";
+    // Default: generic description
+    return "Posts in the " + formatDisplayName(category) + " category";
+}
+
+std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int pageNum, int postsPerPage, const std::string& category = "", const std::string& blogsJsonData = "") {
     std::stringstream html;
 
     // Calculate pagination
@@ -366,51 +823,90 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
     int endIdx = std::min(startIdx + postsPerPage, totalPosts);
 
     // Category-specific titles
-    std::string categoryTitle = category.empty() ? "All Posts" :
-                                (category == "tech" ? "Tech Blog" :
-                                 category == "movies" ? "Movie Reviews" : "Random Thoughts");
+    std::string categoryTitle = getCategoryTitle(category);
+    std::string categoryDesc = getCategoryDescription(category);
 
-    std::string categoryDesc = category.empty() ? "All my blog posts" :
-                               (category == "tech" ? "Technology, programming, and software development" :
-                                category == "movies" ? "Movie reviews, analysis, and recommendations" :
-                                "Random musings and miscellaneous topics");
-
-    // Start blog container with sidebar
+    // Start blog container with three-column layout
     html << "<div class=\"blog-container\">\n";
 
-    // Sidebar
-    html << "    <aside class=\"blog-sidebar\">\n";
-    html << "        <nav class=\"sidebar-menu\">\n";
-    html << "            <h3>Categories</h3>\n";
-    html << "            <ul>\n";
-    html << "                <li><a href=\"blogs.html\"" << (category.empty() ? " class=\"active\"" : "") << ">All Posts</a></li>\n";
-    html << "                <li><a href=\"tech.html\"" << (category == "tech" ? " class=\"active\"" : "") << ">Tech</a></li>\n";
-    html << "                <li><a href=\"movies.html\"" << (category == "movies" ? " class=\"active\"" : "") << ">Movies</a></li>\n";
-    html << "                <li><a href=\"random.html\"" << (category == "random" ? " class=\"active\"" : "") << ">Thoughtful</a></li>\n";
-    html << "            </ul>\n";
-    html << "        </nav>\n";
-    html << "    </aside>\n";
+    // Left Sidebar - Categories (dynamically generated from blog tree)
+    // Build blog tree to discover all categories and subcategories
+    std::string blogDir = "content/blog";
+    if (fs::exists(blogDir)) {
+        ContentNode* blogTree = buildContentTree(blogDir);
+        if (blogTree) {
+            // Generate dynamic sidebar showing all categories and subcategories
+            std::string sidebarHTML = generateSidebar(blogTree, category);
+            html << sidebarHTML;
+            freeContentTree(blogTree);
+        }
+    } else {
+        // Fallback to hardcoded sidebar if blog directory doesn't exist
+        html << "    <aside class=\"blog-sidebar\">\n";
+        html << "        <nav class=\"sidebar-menu\">\n";
+        html << "            <h3>Categories</h3>\n";
+        html << "            <ul>\n";
+        html << "                <li><a href=\"blogs.html\">All Posts</a></li>\n";
+        html << "            </ul>\n";
+        html << "        </nav>\n";
+        html << "    </aside>\n";
+    }
 
     // Main content
     html << "    <div class=\"blog-content\">\n";
     html << "        <h1>" << categoryTitle << "</h1>\n";
     html << "        <p>" << categoryDesc << "</p>\n\n";
-    html << "        <div class=\"blog-list\">\n";
+
+    html << "        <div class=\"blog-list\" id=\"search-results\">\n";
 
         // Show posts for current page
         for (int i = startIdx; i < endIdx; i++) {
             const auto& post = blogPosts[i];
             html << "            <article class=\"blog-item\">\n";
 
-            // Add category badge if showing all posts (no category filter)
+            // Add category/subcategory badge
+            std::string badgeText = "";
             if (category.empty() && !post.category.empty()) {
-                std::string categoryDisplay = post.category;
-                categoryDisplay[0] = std::toupper(categoryDisplay[0]); // Capitalize first letter
-                html << "                <span class=\"category-badge category-" << post.category << "\">" << categoryDisplay << "</span>\n";
+                // Showing all posts - display main category
+                badgeText = post.category;
+                badgeText[0] = std::toupper(badgeText[0]);
+            } else if (!category.empty()) {
+                // Showing specific category - check if post is from a subcategory
+                // Extract subcategory from outputPath (e.g., blog/tech/AI/post.html -> AI)
+                std::string path = post.outputPath;
+                size_t firstSlash = path.find('/');
+                if (firstSlash != std::string::npos) {
+                    size_t secondSlash = path.find('/', firstSlash + 1);
+                    if (secondSlash != std::string::npos) {
+                        size_t thirdSlash = path.find('/', secondSlash + 1);
+                        if (thirdSlash != std::string::npos) {
+                            // Has subcategory (e.g., blog/tech/AI/post.html)
+                            badgeText = path.substr(secondSlash + 1, thirdSlash - secondSlash - 1);
+                            // Format display name
+                            badgeText = formatDisplayName(badgeText);
+                        }
+                    }
+                }
             }
 
-            // Determine correct path - if it has a category, use blog/category/file.html, otherwise blog/file.html
-            std::string postPath = post.category.empty() ? "blog/" + post.outputPath : "blog/" + post.category + "/" + post.outputPath;
+            if (!badgeText.empty()) {
+                html << "                <span class=\"category-badge\">" << badgeText << "</span>\n";
+            }
+
+            // Determine correct path
+            // If outputPath already starts with "blog/", use it as-is (new tree-based system)
+            // Otherwise, construct path the old way (for backward compatibility)
+            std::string postPath;
+            if (post.outputPath.find("blog/") == 0) {
+                // New system: outputPath already has full path like "blog/tech/AI/post.html"
+                postPath = post.outputPath;
+            } else if (!post.category.empty() && post.outputPath.find(post.category + "/") == 0) {
+                // OutputPath already starts with category (e.g., "tech/AI/post.html")
+                postPath = "blog/" + post.outputPath;
+            } else {
+                // Old system: construct from category + filename
+                postPath = post.category.empty() ? "blog/" + post.outputPath : "blog/" + post.category + "/" + post.outputPath;
+            }
 
             html << "                <h2><a href=\"" << postPath << "\">" << post.title << "</a></h2>\n";
             html << "                <p class=\"blog-date\">Published on " << post.publishDate << "</p>\n";
@@ -465,13 +961,354 @@ std::string generateBlogListingHTML(const std::vector<BlogPost>& blogPosts, int 
     }
 
     html << "    </div>\n"; // close blog-content
+
+    // Right Sidebar - Search
+    html << "    <aside class=\"search-sidebar\">\n";
+    html << "        <div class=\"search-sidebar-sticky\">\n";
+    html << "            <h3>Search & Filter</h3>\n";
+    html << "            <input type=\"text\" id=\"blog-search\" placeholder=\"Search posts...\" aria-label=\"Search blogs\">\n";
+    html << "            \n";
+    html << "            <div class=\"search-filters\">\n";
+    html << "                <h4>Filter by Category</h4>\n";
+    html << "                <div class=\"category-filters\">\n";
+
+    // Dynamically generate category filters from all posts
+    std::set<std::string> uniqueCategories;
+    for (const auto& post : blogPosts) {
+        if (!post.category.empty()) {
+            uniqueCategories.insert(post.category);
+        }
+    }
+    for (const auto& cat : uniqueCategories) {
+        std::string displayName = getCategoryTitle(cat);
+        // Remove " Blog" or similar suffixes from display name for cleaner filter labels
+        size_t blogPos = displayName.find(" Blog");
+        if (blogPos != std::string::npos) {
+            displayName = displayName.substr(0, blogPos);
+        }
+        size_t reviewsPos = displayName.find(" Reviews");
+        if (reviewsPos != std::string::npos) {
+            displayName = displayName.substr(0, reviewsPos);
+        }
+        size_t thoughtsPos = displayName.find(" Thoughts");
+        if (thoughtsPos != std::string::npos) {
+            displayName = displayName.substr(0, thoughtsPos);
+        }
+        html << "                    <a href=\"#\" class=\"category-filter\" data-category=\"" << cat << "\">" << displayName << "</a>\n";
+    }
+
+    html << "                </div>\n";
+    html << "            </div>\n";
+    html << "            \n";
+    html << "            <div class=\"sort-control\">\n";
+    html << "                <label for=\"blog-sort\">Sort by</label>\n";
+    html << "                <select id=\"blog-sort\">\n";
+    html << "                    <option value=\"date-desc\">Newest First</option>\n";
+    html << "                    <option value=\"date-asc\">Oldest First</option>\n";
+    html << "                    <option value=\"title-asc\">Title (A-Z)</option>\n";
+    html << "                    <option value=\"title-desc\">Title (Z-A)</option>\n";
+    html << "                </select>\n";
+    html << "            </div>\n";
+    html << "            \n";
+    html << "            <p id=\"result-count\" class=\"result-count\"></p>\n";
+    html << "        </div>\n";
+    html << "    </aside>\n";
+
     html << "</div>\n"; // close blog-container
+
+    // Embed JSON data inline if provided (avoids CORS issues with file:// protocol)
+    if (!blogsJsonData.empty()) {
+        html << "<script>\n";
+        html << "// Embedded blog data to avoid CORS issues\n";
+        html << "window.BLOG_DATA = " << blogsJsonData << ";\n";
+        html << "</script>\n";
+    }
+
+    html << "<script src=\"search.js\"></script>\n";
 
     return html.str();
 }
 
+// ==================== Tree-Based Content Processing ====================
+
+/**
+ * Collect all file nodes from a directory (including nested subdirectories)
+ *
+ * @param node Directory node to collect from
+ * @param files Vector to store collected file nodes
+ */
+void collectFileNodes(ContentNode* node, std::vector<ContentNode*>& files) {
+    if (!node) return;
+
+    if (node->type == NODE_FILE) {
+        files.push_back(node);
+    } else if (node->type == NODE_DIRECTORY) {
+        for (ContentNode* child : node->children) {
+            collectFileNodes(child, files);
+        }
+    }
+}
+
+/**
+ * Generate listing page for a category/subcategory
+ *
+ * @param categoryNode Directory node for the category
+ * @param outputBaseDir Base output directory (e.g., "docs")
+ * @param templateContent Template HTML
+ * @param navItems Navigation items
+ * @param blogsJsonData JSON data for search (empty for now)
+ */
+void generateCategoryListingPage(ContentNode* categoryNode,
+                                  const std::string& outputBaseDir,
+                                  const std::string& templateContent,
+                                  const std::vector<NavigationItem>& navItems,
+                                  const std::string& blogsJsonData = "") {
+    if (!categoryNode || categoryNode->type != NODE_DIRECTORY) return;
+
+    // Collect all posts in this category (including nested)
+    std::vector<ContentNode*> fileNodes;
+    collectFileNodes(categoryNode, fileNodes);
+
+    if (fileNodes.empty()) {
+        return; // No posts, skip listing page
+    }
+
+    // Convert to BlogPost objects
+    std::vector<BlogPost> posts;
+    for (ContentNode* fileNode : fileNodes) {
+        BlogPost post;
+        post.filename = fileNode->name;
+        post.title = fileNode->title;
+        post.excerpt = fileNode->excerpt;
+        post.publishDate = fileNode->publishDate;
+        post.timestamp = fileNode->timestamp;
+        post.outputPath = fileNode->outputPath;
+
+        // Determine category from parent
+        if (fileNode->parent && fileNode->parent->name != "blog") {
+            post.category = fileNode->parent->name;
+        } else {
+            post.category = "";
+        }
+
+        posts.push_back(post);
+    }
+
+    // Sort by date (newest first)
+    std::sort(posts.begin(), posts.end(), [](const BlogPost& a, const BlogPost& b) {
+        return a.timestamp > b.timestamp;
+    });
+
+    // Generate listing HTML
+    std::string listingHTML = generateBlogListingHTML(posts, 1, 10, categoryNode->name, blogsJsonData);
+
+    // Apply template
+    std::string title = categoryNode->displayName + " - Blog";
+    std::string finalHTML = applyTemplate(templateContent, title, listingHTML, {}, 0, "");
+
+    // Determine output path
+    std::string outputPath = outputBaseDir + "/" + categoryNode->name + ".html";
+
+    // Write file
+    writeFile(outputPath, finalHTML);
+
+    std::cout << "Generated listing page: " << categoryNode->name << ".html" << std::endl;
+}
+
+/**
+ * Recursively process content tree node and generate HTML files
+ * This handles subdirectories at any depth
+ *
+ * @param node Current node to process
+ * @param outputBaseDir Base output directory (e.g., "docs")
+ * @param templateContent Template HTML content
+ * @param parser Markdown parser
+ * @param navItems Navigation items for all pages
+ * @param cache Build cache
+ * @param newCache Updated cache
+ * @param templateHash Template hash for cache validation
+ */
+void processContentNode(ContentNode* node,
+                       const std::string& outputBaseDir,
+                       const std::string& templateContent,
+                       MarkdownParser& parser,
+                       const std::vector<NavigationItem>& navItems,
+                       const std::map<std::string, CachedMetadata>& cache,
+                       std::map<std::string, CachedMetadata>& newCache,
+                       const std::string& templateHash) {
+    if (!node) return;
+
+    if (node->type == NODE_FILE) {
+        // Process markdown or jupyter notebook file
+        std::string outputPath = outputBaseDir + "/" + node->outputPath;
+
+        // Create output directory if needed
+        fs::path outputFilePath(outputPath);
+        fs::path outputDirPath = outputFilePath.parent_path();
+        if (!outputDirPath.empty() && !fs::exists(outputDirPath)) {
+            fs::create_directories(outputDirPath);
+        }
+
+        // Read file content
+        std::string fileContent = readFile(node->path);
+        if (fileContent.empty()) {
+            return;
+        }
+
+        // Check if regeneration is needed
+        bool needsRegen = needsBlogRegeneration(node->path, fileContent, outputPath, templateHash, cache);
+
+        if (!needsRegen) {
+            std::cout << "Skipping (up-to-date): " << node->outputPath << std::endl;
+
+            // Update cache with existing metadata
+            auto cachedIt = cache.find(node->path);
+            if (cachedIt != cache.end()) {
+                newCache[node->path] = cachedIt->second;
+            }
+            return;
+        }
+
+        // Determine file type and convert to HTML
+        std::string htmlContent;
+        std::string toc = "";
+        fs::path filePath(node->path);
+        std::string extension = filePath.extension().string();
+
+        if (extension == ".ipynb") {
+            // Process Jupyter notebook
+            JupyterParser jupyterParser;
+            std::vector<std::string> extractedImages;
+            htmlContent = jupyterParser.convertToHTML(fileContent, node->path, extractedImages);
+
+            // Copy extracted images to docs/images/notebooks/
+            for (const auto& imagePath : extractedImages) {
+                fs::path imgPath(imagePath);
+                std::string destPath = "docs/images/notebooks/" + imgPath.filename().string();
+                try {
+                    fs::copy_file(imagePath, destPath, fs::copy_options::overwrite_existing);
+                } catch (const fs::filesystem_error& e) {
+                    std::cerr << "Error copying image: " << e.what() << std::endl;
+                }
+            }
+        } else {
+            // Process markdown
+            htmlContent = parser.convertToHTML(fileContent);
+            toc = generateTOC(fileContent);
+        }
+
+        // Calculate subdirectory depth for relative paths
+        // Count slashes in outputPath to determine depth
+        // e.g., "blog/tech/AI/post.html" has 3 slashes = depth 3
+        int depth = 0;
+        for (char c : node->outputPath) {
+            if (c == '/') depth++;
+        }
+
+        // Apply template
+        std::string finalHTML = applyTemplate(templateContent, node->title, htmlContent,
+                                             {}, depth, toc);
+
+        // Write output file
+        writeFile(outputPath, finalHTML);
+
+        // Update cache
+        CachedMetadata metadata;
+        metadata.contentHash = hashString(fileContent + templateHash);
+        metadata.publishDate = node->publishDate;
+        metadata.timestamp = node->timestamp;
+        metadata.fileModTime = getFileModificationTimestamp(node->path);
+        newCache[node->path] = metadata;
+
+    } else if (node->type == NODE_DIRECTORY) {
+        // Recursively process all children
+        for (ContentNode* child : node->children) {
+            processContentNode(child, outputBaseDir, templateContent, parser,
+                             navItems, cache, newCache, templateHash);
+        }
+    }
+}
+
 // Helper function to process blog posts from a specific category directory
+// NOW INCLUDES SUBDIRECTORIES RECURSIVELY
 void processCategoryBlogs(const std::string& categoryDir, const std::string& categoryOutputDir,
+                         const std::string& categoryName, std::vector<BlogPost>& allBlogPosts,
+                         std::vector<BlogPost>& blogsToGenerate, int& skippedBlogs,
+                         const std::map<std::string, CachedMetadata>& cache,
+                         std::map<std::string, CachedMetadata>& newCache,
+                         const std::string& templateHash, MarkdownParser& parser) {
+    if (!fs::exists(categoryDir)) {
+        return;
+    }
+
+    // Build tree for this category to get ALL posts including nested ones
+    ContentNode* categoryTree = buildContentTree(categoryDir);
+    if (!categoryTree) {
+        return;
+    }
+
+    // Collect all file nodes recursively
+    std::vector<ContentNode*> fileNodes;
+    collectFileNodes(categoryTree, fileNodes);
+
+    // Process each file
+    for (ContentNode* fileNode : fileNodes) {
+        if (fileNode->type != NODE_FILE) continue;
+
+        std::string filepath = fileNode->path;
+        std::string filename = fileNode->name;
+
+        // Determine output path - for files in subdirectories, it will be like blog/tech/AI/post.html
+        std::string outputPath = "docs/" + fileNode->outputPath;
+
+        std::string markdownContent = readFile(filepath);
+        if (markdownContent.empty()) {
+            continue;
+        }
+
+        std::string title = fileNode->title;
+        std::string excerpt = fileNode->excerpt;
+
+        // Use cached date if available
+        std::string publishDate;
+        std::time_t timestamp;
+
+        auto cachedIt = cache.find(filepath);
+        if (cachedIt != cache.end() && !cachedIt->second.publishDate.empty()) {
+            publishDate = cachedIt->second.publishDate;
+            timestamp = cachedIt->second.timestamp;
+        } else {
+            publishDate = fileNode->publishDate;
+            timestamp = fileNode->timestamp;
+        }
+
+        BlogPost post;
+        post.filename = filename;
+        post.title = title;
+        post.excerpt = excerpt;
+        post.outputPath = fileNode->outputPath; // Full path like blog/tech/AI/post.html
+        post.publishDate = publishDate;
+        post.timestamp = timestamp;
+        post.category = categoryName;
+
+        // Check if regeneration is needed (already done by processContentNode, so skip for now)
+        // We're just collecting metadata for listing pages here
+        allBlogPosts.push_back(post);
+
+        // Update cache
+        CachedMetadata metadata;
+        metadata.contentHash = hashString(markdownContent + templateHash);
+        metadata.publishDate = publishDate;
+        metadata.timestamp = timestamp;
+        metadata.fileModTime = getFileModificationTimestamp(filepath);
+        newCache[filepath] = metadata;
+    }
+
+    freeContentTree(categoryTree);
+}
+
+// OLD VERSION - KEPT FOR REFERENCE BUT NOT USED
+void processCategoryBlogs_OLD(const std::string& categoryDir, const std::string& categoryOutputDir,
                          const std::string& categoryName, std::vector<BlogPost>& allBlogPosts,
                          std::vector<BlogPost>& blogsToGenerate, int& skippedBlogs,
                          const std::map<std::string, CachedMetadata>& cache,
@@ -548,16 +1385,12 @@ int main(int argc, char* argv[]) {
 
     std::string contentDir = "content";
     std::string blogDir = "content/blog";
-    std::string techDir = "content/blog/tech";
-    std::string moviesDir = "content/blog/movies";
-    std::string randomDir = "content/blog/random";
     std::string imagesDir = "content/images";
+    std::string notebooksImagesDir = "content/images/notebooks";
     std::string outputDir = "docs";
     std::string blogOutputDir = "docs/blog";
-    std::string techOutputDir = "docs/blog/tech";
-    std::string moviesOutputDir = "docs/blog/movies";
-    std::string randomOutputDir = "docs/blog/random";
     std::string imagesOutputDir = "docs/images";
+    std::string notebooksImagesOutputDir = "docs/images/notebooks";
     std::string templatePath = "templates/template.html";
     std::string cssSourcePath = "templates/style.css";
     std::string cssOutputPath = "docs/style.css";
@@ -570,17 +1403,16 @@ int main(int argc, char* argv[]) {
     if (!fs::exists(blogOutputDir)) {
         fs::create_directory(blogOutputDir);
     }
-    if (!fs::exists(techOutputDir)) {
-        fs::create_directory(techOutputDir);
-    }
-    if (!fs::exists(moviesOutputDir)) {
-        fs::create_directory(moviesOutputDir);
-    }
-    if (!fs::exists(randomOutputDir)) {
-        fs::create_directory(randomOutputDir);
-    }
     if (!fs::exists(imagesOutputDir)) {
         fs::create_directory(imagesOutputDir);
+    }
+    // Create notebooks subdirectory in content/images
+    if (!fs::exists(notebooksImagesDir)) {
+        fs::create_directories(notebooksImagesDir);
+    }
+    // Create notebooks subdirectory in docs/images
+    if (!fs::exists(notebooksImagesOutputDir)) {
+        fs::create_directories(notebooksImagesOutputDir);
     }
 
     // Copy CSS file to output directory
@@ -589,6 +1421,16 @@ int main(int argc, char* argv[]) {
         std::cout << "Copied: " << cssOutputPath << std::endl;
     } catch (const fs::filesystem_error& e) {
         std::cerr << "Error copying CSS file: " << e.what() << std::endl;
+    }
+
+    // Copy search.js file to output directory
+    std::string jsSourcePath = "templates/search.js";
+    std::string jsOutputPath = "docs/search.js";
+    try {
+        fs::copy_file(jsSourcePath, jsOutputPath, fs::copy_options::overwrite_existing);
+        std::cout << "Copied: " << jsOutputPath << std::endl;
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Error copying search.js file: " << e.what() << std::endl;
     }
 
     // Copy images directory to output directory
@@ -694,17 +1536,75 @@ int main(int argc, char* argv[]) {
     std::vector<BlogPost> blogsToGenerate;
     int skippedBlogs = 0;
 
-    // Process tech blogs
-    processCategoryBlogs(techDir, techOutputDir, "tech", blogPosts, blogsToGenerate,
-                        skippedBlogs, cache, newCache, templateHash, parser);
+    // Dynamically discover and process all category directories
+    std::vector<std::string> categories;
+    if (fs::exists(blogDir)) {
+        for (const auto& entry : fs::directory_iterator(blogDir)) {
+            if (entry.is_directory()) {
+                std::string categoryName = entry.path().filename().string();
+                // Skip hidden directories and special directories
+                if (categoryName[0] != '.' && categoryName != "images") {
+                    categories.push_back(categoryName);
 
-    // Process movies blogs
-    processCategoryBlogs(moviesDir, moviesOutputDir, "movies", blogPosts, blogsToGenerate,
-                        skippedBlogs, cache, newCache, templateHash, parser);
+                    // Create output directory for this category if it doesn't exist
+                    std::string categoryOutputDir = blogOutputDir + "/" + categoryName;
+                    if (!fs::exists(categoryOutputDir)) {
+                        fs::create_directory(categoryOutputDir);
+                    }
 
-    // Process random blogs
-    processCategoryBlogs(randomDir, randomOutputDir, "random", blogPosts, blogsToGenerate,
-                        skippedBlogs, cache, newCache, templateHash, parser);
+                    // Process blogs in this category
+                    std::string categoryDir = blogDir + "/" + categoryName;
+                    processCategoryBlogs(categoryDir, categoryOutputDir, categoryName, blogPosts, blogsToGenerate,
+                                        skippedBlogs, cache, newCache, templateHash, parser);
+                }
+            }
+        }
+    }
+
+    // ==================== NEW: Process subdirectories recursively ====================
+    std::cout << "\n[INFO] Processing subdirectories..." << std::endl;
+
+    // Build tree for blog directory to find ALL subdirectories
+    if (fs::exists(blogDir)) {
+        ContentNode* blogTree = buildContentTree(blogDir);
+        if (blogTree) {
+            // Generate empty nav items for now (will be used properly in full tree-based system)
+            std::vector<NavigationItem> emptyNav;
+
+            // Process the entire blog tree recursively
+            // This will generate HTML for files in subdirectories like blog/tech/AI/, blog/tech/Thinking like a engineer/
+            processContentNode(blogTree, "docs", templateContent, parser, emptyNav, cache, newCache, templateHash);
+
+            // Generate listing pages for all subdirectories (AI.html, "Thinking like a engineer.html", etc.)
+            std::cout << "\n[INFO] Generating listing pages for subdirectories..." << std::endl;
+            std::function<void(ContentNode*)> generateSubdirListings = [&](ContentNode* node) {
+                if (!node || node->type != NODE_DIRECTORY) return;
+
+                // Generate listing page for this directory (if it has posts)
+                if (!node->children.empty()) {
+                    generateCategoryListingPage(node, "docs", templateContent, emptyNav, "");
+                }
+
+                // Recursively process subdirectories
+                for (ContentNode* child : node->children) {
+                    if (child->type == NODE_DIRECTORY) {
+                        generateSubdirListings(child);
+                    }
+                }
+            };
+
+            // Start from blog tree children (tech, movies, random, and their subdirectories)
+            for (ContentNode* child : blogTree->children) {
+                if (child->type == NODE_DIRECTORY) {
+                    generateSubdirListings(child);
+                }
+            }
+
+            freeContentTree(blogTree);
+            std::cout << "[INFO] Subdirectory processing complete!" << std::endl;
+        }
+    }
+    // ==================================================================================
 
     // Process uncategorized blogs (directly in content/blog)
     if (fs::exists(blogDir)) {
@@ -714,20 +1614,78 @@ int main(int argc, char* argv[]) {
                 continue;
             }
 
-            if (entry.path().extension() == ".md") {
+            std::string extension = entry.path().extension().string();
+            if (extension == ".md" || extension == ".ipynb") {
                 std::string filepath = entry.path().string();
                 std::string filename = entry.path().filename().string();
                 std::string outputFilename = entry.path().stem().string() + ".html";
                 std::string outputPath = blogOutputDir + "/" + outputFilename;
 
-                std::string markdownContent = readFile(filepath);
-                if (markdownContent.empty()) {
+                std::string fileContent = readFile(filepath);
+                if (fileContent.empty()) {
                     continue;
                 }
 
-                std::string title = extractTitle(markdownContent);
-                std::string excerptMarkdown = extractExcerpt(markdownContent);
-                std::string excerpt = parser.convertToHTML(excerptMarkdown);
+                std::string title;
+                std::string excerpt;
+                std::string htmlContent;
+                std::vector<std::string> extractedImages;
+
+                if (extension == ".ipynb") {
+                    // Process Jupyter notebook
+                    JupyterParser jupyterParser;
+                    htmlContent = jupyterParser.convertToHTML(fileContent, filepath, extractedImages);
+
+                    // Extract title from first markdown cell or use filename
+                    try {
+                        json notebook = json::parse(fileContent);
+                        bool foundTitle = false;
+                        if (notebook.contains("cells")) {
+                            for (const auto& cell : notebook["cells"]) {
+                                if (cell["cell_type"] == "markdown" && cell.contains("source")) {
+                                    std::string source;
+                                    if (cell["source"].is_string()) {
+                                        source = cell["source"];
+                                    } else if (cell["source"].is_array() && !cell["source"].empty()) {
+                                        source = cell["source"][0];
+                                    }
+                                    if (source.find("# ") == 0) {
+                                        title = source.substr(2);
+                                        // Remove newline
+                                        if (!title.empty() && title.back() == '\n') {
+                                            title.pop_back();
+                                        }
+                                        foundTitle = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!foundTitle) {
+                            title = entry.path().stem().string();
+                        }
+                    } catch (...) {
+                        title = entry.path().stem().string();
+                    }
+
+                    excerpt = "Jupyter notebook";  // Simple excerpt for notebooks
+
+                    // Copy extracted images to docs/images/notebooks/
+                    for (const auto& imagePath : extractedImages) {
+                        fs::path imgPath(imagePath);
+                        std::string destPath = "docs/images/notebooks/" + imgPath.filename().string();
+                        try {
+                            fs::copy_file(imagePath, destPath, fs::copy_options::overwrite_existing);
+                        } catch (const fs::filesystem_error& e) {
+                            std::cerr << "Error copying image: " << e.what() << std::endl;
+                        }
+                    }
+                } else {
+                    // Process Markdown
+                    title = extractTitle(fileContent);
+                    std::string excerptMarkdown = extractExcerpt(fileContent);
+                    excerpt = parser.convertToHTML(excerptMarkdown);
+                }
 
                 std::string publishDate;
                 std::time_t timestamp;
@@ -750,18 +1708,23 @@ int main(int argc, char* argv[]) {
                 post.timestamp = timestamp;
                 post.category = "";  // No category
 
-                if (!needsBlogRegeneration(filepath, markdownContent, outputPath, templateHash, cache)) {
+                if (!needsBlogRegeneration(filepath, fileContent, outputPath, templateHash, cache)) {
                     std::cout << "Skipping (up-to-date): " << filename << " [uncategorized]" << std::endl;
                     skippedBlogs++;
                     newCache[filepath] = cache[filepath];
                 } else {
                     std::cout << "Processing blog: " << filename << " [uncategorized]" << std::endl;
-                    std::string htmlContent = parser.convertToHTML(markdownContent);
+
+                    // Only convert markdown to HTML if not already done (for .md files)
+                    if (extension == ".md") {
+                        htmlContent = parser.convertToHTML(fileContent);
+                    }
+
                     post.content = htmlContent;
                     blogsToGenerate.push_back(post);
 
                     CachedMetadata metadata;
-                    metadata.contentHash = hashString(markdownContent + templateHash);
+                    metadata.contentHash = hashString(fileContent + templateHash);
                     metadata.publishDate = publishDate;
                     metadata.timestamp = timestamp;
                     metadata.fileModTime = 0;
@@ -778,6 +1741,48 @@ int main(int argc, char* argv[]) {
         return a.timestamp > b.timestamp;
     });
 
+    // Initialize SQLite database and export to JSON for client-side search
+    std::string dbPath = "docs/blogs.db";
+    std::string jsonPath = "docs/blogs.json";
+    BlogDatabase blogDB(dbPath);
+
+    if (blogDB.initialize()) {
+        std::cout << "Populating blog database..." << std::endl;
+
+        for (const auto& post : blogPosts) {
+            BlogEntry entry;
+            entry.title = post.title;
+            entry.excerpt = post.excerpt;
+            entry.category = post.category.empty() ? "uncategorized" : post.category;
+            entry.publishDate = post.publishDate;
+            entry.timestamp = post.timestamp;
+
+            // Generate URL based on category
+            if (post.category.empty()) {
+                entry.url = "blog/" + post.outputPath;
+            } else {
+                entry.url = "blog/" + post.category + "/" + post.outputPath;
+            }
+
+            blogDB.insertBlog(entry);
+        }
+
+        // Export to JSON for client-side search
+        blogDB.exportToJSON(jsonPath);
+    } else {
+        std::cerr << "Warning: Failed to initialize blog database. Search functionality will not be available." << std::endl;
+    }
+
+    // Read the JSON file to embed in HTML (avoids CORS issues with file:// protocol)
+    std::string blogsJsonData;
+    std::ifstream jsonFile(jsonPath);
+    if (jsonFile.is_open()) {
+        std::stringstream buffer;
+        buffer << jsonFile.rdbuf();
+        blogsJsonData = buffer.str();
+        jsonFile.close();
+    }
+
     const int POSTS_PER_PAGE = 5;
 
     // Generate main blog listing page (all posts from all categories)
@@ -786,7 +1791,7 @@ int main(int argc, char* argv[]) {
         int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
 
         for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
-            std::string blogListingHTML = generateBlogListingHTML(blogPosts, pageNum, POSTS_PER_PAGE, "");
+            std::string blogListingHTML = generateBlogListingHTML(blogPosts, pageNum, POSTS_PER_PAGE, "", blogsJsonData);
             Page blogIndexPage;
             blogIndexPage.filename = "blogs.md";
             blogIndexPage.title = "Blog";
@@ -803,9 +1808,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Generate category-specific blog listing pages
-    std::vector<std::string> categories = {"tech", "movies", "random"};
-
+    // Generate category-specific blog listing pages (using dynamically discovered categories)
     for (const auto& category : categories) {
         // Filter posts by category
         std::vector<BlogPost> categoryPosts;
@@ -824,11 +1827,10 @@ int main(int argc, char* argv[]) {
         int totalPages = (totalPosts + POSTS_PER_PAGE - 1) / POSTS_PER_PAGE;
 
         for (int pageNum = 1; pageNum <= totalPages; pageNum++) {
-            std::string categoryListingHTML = generateBlogListingHTML(categoryPosts, pageNum, POSTS_PER_PAGE, category);
+            std::string categoryListingHTML = generateBlogListingHTML(categoryPosts, pageNum, POSTS_PER_PAGE, category, blogsJsonData);
             Page categoryIndexPage;
             categoryIndexPage.filename = category + ".md";
-            categoryIndexPage.title = (category == "tech" ? "Tech Blog" :
-                                      category == "movies" ? "Movie Reviews" : "Random Thoughts");
+            categoryIndexPage.title = getCategoryTitle(category);
             categoryIndexPage.content = categoryListingHTML;
 
             if (pageNum == 1) {
@@ -860,12 +1862,8 @@ int main(int argc, char* argv[]) {
         std::string tocHtml = "";
         // Find the original markdown file to generate TOC
         std::string markdownPath;
-        if (post.category == "tech") {
-            markdownPath = techDir + "/" + post.filename;
-        } else if (post.category == "movies") {
-            markdownPath = moviesDir + "/" + post.filename;
-        } else if (post.category == "random") {
-            markdownPath = randomDir + "/" + post.filename;
+        if (!post.category.empty()) {
+            markdownPath = blogDir + "/" + post.category + "/" + post.filename;
         } else {
             markdownPath = blogDir + "/" + post.filename;
         }
@@ -879,12 +1877,8 @@ int main(int argc, char* argv[]) {
 
         // Determine output path based on category
         std::string outputPath;
-        if (post.category == "tech") {
-            outputPath = techOutputDir + "/" + post.outputPath;
-        } else if (post.category == "movies") {
-            outputPath = moviesOutputDir + "/" + post.outputPath;
-        } else if (post.category == "random") {
-            outputPath = randomOutputDir + "/" + post.outputPath;
+        if (!post.category.empty()) {
+            outputPath = blogOutputDir + "/" + post.category + "/" + post.outputPath;
         } else {
             outputPath = blogOutputDir + "/" + post.outputPath;
         }

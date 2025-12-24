@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My readings on DDIA ch1 - My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../style.css">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../projects.html">Projects</a><a href="../../../blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-2"><a href="#reliability">Reliability</a></li>
+            <li class="toc-level-3"><a href="#hardware-faults">Hardware Faults</a></li>
+            <li class="toc-level-3"><a href="#software-errors">Software Errors</a></li>
+            <li class="toc-level-3"><a href="#human-errors">Human Errors</a></li>
+        <li class="toc-level-2"><a href="#scalability">Scalability</a></li>
+            <li class="toc-level-3"><a href="#describing-load">Describing Load</a></li>
+            <li class="toc-level-3"><a href="#performance">Performance</a></li>
+        <li class="toc-level-2"><a href="#maintainability">Maintainability</a></li>
+            <li class="toc-level-3"><a href="#operability">Operability</a></li>
+            <li class="toc-level-3"><a href="#simplicity">Simplicity</a></li>
+            <li class="toc-level-3"><a href="#evolvability">Evolvability</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="my-readings-on-ddia-ch1">My readings on DDIA ch1</h1>
+<p>what i learnt from DDIA ch1, also I'm using a new note taking app called logseq, i'm not yet familiar with it, so it is bound to make mistakes, as my static site generator doesn't yet transform few things yet from markdown to html.</p>
+<p> Most systems today are lacking architecture for data intensive , than compute intensive, as there is more power for compute intensive than the idea or how to manipulate huge amounts of data to a viable entity. Designing Data systems require 3 important things:</p>
+<ul>
+  <li>Reliability - should work correctly even in face of adversity or failures.</li>
+  <li>scalability - As data volume or system grows, there should be reasonable ways of dealing with the growth.</li>
+  <li>Maintainability - The system should be able to be worked on productively by multiple people.</li>
+</ul>
+<h2 id="reliability">Reliability</h2>
+<ul>
+  <li>we can test reliability by using tools like chaos monkey software, which tests all the edge cases,</li>
+  <li>Reliability should have the ability to deal with these kinds of faults:</li>
+  <li>Hardware Faults</li>
+  <li>Software Faults</li>
+  <li>Human Errors</li>
+</ul>
+<h3 id="hardware-faults">Hardware Faults</h3>
+<ul>
+  <li>RAM, Hard disk crashes, power grid has a blackout, wrongly unplugging the network cable, these are some of the hardware faults</li>
+  <li>solutions to this are usually redundancies like RAID, backup generators, dual power supplies and hot swappable CPUs.</li>
+  <li>These aren't enough when data volume and computing demand ^es, ^es no of machines, ^es hardware faults, here the quality or the solution lies on software fault tolerance techniques that can tolerate the loss of entire machines, additional to hardware redundancy.</li>
+</ul>
+<h3 id="software-errors">Software Errors</h3>
+<ul>
+  <li>system failures in large data centers are primarily because of software bugs, and some sort of cascading failures.</li>
+  <li>Alerts can be used to detect discrepancies,</li>
+</ul>
+<h3 id="human-errors">Human Errors</h3>
+<ul>
+  <li>humans are unreliable, no matter what.</li>
+  <li>so, we make well designed abstractions, APIs and admin interfaces, these influences people who are working on a software to implement good practices rather than get influenced by wrong choices.</li>
+  <li>Decouple the places where people make more mistakes, from the places where they can cause failures, use things like sandbox experiments to test out the functionality before merging in the developmentation.</li>
+  <li>Test software for edge cases</li>
+  <li>Make sure that you can easily and quickly recover from human errors.</li>
+  <li>Use telemetry</li>
+  <li>good management and training.</li>
+</ul>
+<h2 id="scalability">Scalability</h2>
+<ul>
+  <li>The more the load increases, the system degrades, only solution is to improve the system as it scales.</li>
+</ul>
+<h3 id="describing-load">Describing Load</h3>
+<ul>
+  <li>Load parameters -> can be -> requests/sec, reads to writes in DBs, No.of concurrent users, the hit rate on a cache. example was twitter's architecture of how the tweets are merged in followers home timeline, where they used two architectures, one is fanout and the other is writing simultaneously, when tweet is tweeted, in the home timeline of the followers, so people with more followers use this, and less ones will be used for fanout, where the write operation is heavy than the read operation.</li>
+</ul>
+<h3 id="performance">Performance</h3>
+<ul>
+  <li>Mostly measure in response time of the user and latency, here latency is the time taken to complete a request, as requests had to wait in a queue before getting processed.</li>
+  <li>Measure this using percentile , such that it will be easier to make decisions, so for eg, if by average percentile, like 50% of the request is processed within 250ms, and there are tail percentile or 99% .. which takes longer time to process a request.</li>
+  <li>there is a problem here known as head of line blocking , which happens if a tail end request happens , and it takes a lot of time to process, making the queued requests to delay.</li>
+  <li>solution is to predict which functionality of a software will be used mostly and scaling it than scaling the whole system.</li>
+  <li>tail percentile amplification that happens when the user sends multiple requests of large scales.</li>
+  <li>The head of line blocking and tail percentile amplification or performance bottlenecks.</li>
+</ul>
+<h2 id="maintainability">Maintainability</h2>
+<ul>
+  <li>Involves how a software is designed.</li>
+  <li>it has 3 criterias</li>
+</ul>
+<h3 id="operability">Operability</h3>
+<ul>
+  <li>making routine tasks easy such as monitoring health of the system.</li>
+</ul>
+<h3 id="simplicity">Simplicity</h3>
+<ul>
+  <li>Big ball of mud , the software is mired in complexity. we have to design software such that it is easy to understand.</li>
+</ul>
+<h3 id="evolvability">Evolvability</h3>
+<ul>
+  <li>The ease at which you can modify and incrementally test features in a software.</li>
+</ul>
+<p>	- -</p>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/loki52501" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:lokeshlks01@gmail.com">Email</a>
+            <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        </div>
+        <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
+    </footer>
+
+    <!-- Prism.js scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-julia.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+</body>
+</html>

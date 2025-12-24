@@ -2,7 +2,7 @@
 
 # Lokesh L.K.S
 
-Hi, I am me, and currently pursuing MS in Cybersecurity at Penn State (graduating May 2026) with hands-on experience in **cloud security automation**, **infrastructure security**, and **AI-powered network security systems**.
+Hi, I am me, and currently pursuing MS in Cybersecurity at Penn State (graduating May 2026) with hands-on experience in **cloud security automation**, **infrastructure security**, and **AI-powered network security systems**. 
 
 Currently building **EdgeStreamAI**—an intelligent operations platform for Netflix-scale live streaming events—as my master's capstone. I combine security engineering fundamentals with emerging AI technologies to solve real-world problems at scale.
 
@@ -118,7 +118,6 @@ Designed platform for Anna University serving thousands of students:
 
 **Dream companies**: Netflix, Cloudflare, Akamai, Fastly, AWS, Google Cloud, Datadog
 
-I'm particularly interested in roles at companies building large-scale, high-performance systems where security and reliability are critical. If you're solving Netflix-scale problems, I want to contribute.
 
 ---
 
@@ -142,7 +141,7 @@ I'm particularly interested in roles at companies building large-scale, high-per
 Master of Science in Cybersecurity Operations and Technology | August 2024 - May 2026  
 *Relevant Coursework*: Software Security, AI and Cloud Security
 
-**Anna University** | Chennai, India  
+**Anna University** | Chennai  
 Master of Science in Information Technology | August 2019 - July 2024  
 *Relevant Coursework*: Computer Networks, Software Architecture, Data Analysis
 

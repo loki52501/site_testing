@@ -33,7 +33,7 @@ I don't chase buzzwords. I build things that work, then make them secure, then m
 
 Chess player, Skater (records holder), movie enthusiast, book worm. I believe the best engineers are interesting humans first, and that curiosity about the world makes you better at solving technical problems.
 
-If you're building something ambitious and want someone who thinks about security, scale, and how things actually break in production—let's talk.
+If you're building something ambitious and want someone who thinks about security, scale then let's talk.
 
 ---
 

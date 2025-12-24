@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Models - My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="../../index.html">Home</a><a href="../../about.html">About</a><a href="../../projects.html">Projects</a><a href="../../blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-1"><a href="#normalization">Normalization</a></li>
+        <li class="toc-level-2"><a href="#1nffirst-normal-form">1NF(first normal form)</a></li>
+        <li class="toc-level-2"><a href="#2nfsecond-normal-form">2NF(Second normal form)</a></li>
+        <li class="toc-level-2"><a href="#3nfthird-normal-form">3NF(Third normal form)</a></li>
+        <li class="toc-level-2"><a href="#boyle-codd-normal-form">(Boyle-Codd normal form)</a></li>
+        <li class="toc-level-2"><a href="#example">Example:</a></li>
+        <li class="toc-level-2"><a href="#unnormalized-form-0nf">Unnormalized Form (0NF)</a></li>
+        <li class="toc-level-2"><a href="#1nf-atomic-values">1NF (Atomic Values)</a></li>
+        <li class="toc-level-2"><a href="#2nf-no-partial-dependencies">2NF (No Partial Dependencies)</a></li>
+        <li class="toc-level-2"><a href="#3nf-no-transitive-dependencies">3NF (No Transitive Dependencies)</a></li>
+        <li class="toc-level-1"><a href="#relational-databases-vs-document-databasenosql">Relational Databases vs Document Database(Nosql)</a></li>
+        <li class="toc-level-2"><a href="#many-to-many-relationships">Many to Many relationships</a></li>
+        <li class="toc-level-2"><a href="#summary">Summary</a></li>
+        <li class="toc-level-2"><a href="#schema-on-write-and-schema-on-read">Schema-on-write and Schema-on-read</a></li>
+        <li class="toc-level-2"><a href="#schema-migrations">Schema Migrations</a></li>
+        <li class="toc-level-2"><a href="#locality">Locality</a></li>
+        <li class="toc-level-1"><a href="#network-model">Network model</a></li>
+        <li class="toc-level-1"><a href="#query-language-for-data">Query Language for data</a></li>
+        <li class="toc-level-1"><a href="#mapreduce">Mapreduce</a></li>
+        <li class="toc-level-1"><a href="#graph-like-data-models">Graph like Data Models</a></li>
+        <li class="toc-level-2"><a href="#graph-models">Graph Models</a></li>
+            <li class="toc-level-3"><a href="#property-graph-model">Property graph model</a></li>
+            <li class="toc-level-3"><a href="#triple-store-model">Triple Store model</a></li>
+            <li class="toc-level-3"><a href="#query-languages">Query Languages</a></li>
+        <li class="toc-level-1"><a href="#graph-queries-in-sql">Graph queries in SQL</a></li>
+        <li class="toc-level-1"><a href="#can-i-use-graph-data-models-for-many-to-one-and-one-to-many">Can I use graph data models for Many to one and one to many:</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="data-models">Data Models</h1>
+<p>These are the base layers of any application, based on that the software is designed. Relation databases have been the forerunner in operating of how data models should structure and what operations can be performed on them, but in recent years, there are new players like document based databases or noSql and Graph based databases.</p>
+<p>Data models is a template , more like a schema, but with how data is collected for the applicaton, how it should be structured, and the rules it should follow. </p>
+<p>Without data models the organization could face a lot of issues in production , and it will not be easy to solve critical issues. </p>
+<p>Data models define entities and its relationships with each other, these entites could be rows, and relationships could be columns in a relational database.</p>
+<h1 id="normalization">Normalization</h1>
+<p>The idea to remove redundancies from the database is known as normalization.</p>
+<p>In relational DB we could see 4 kinds of normalization :</p>
+<h2 id="1nffirst-normal-form">1NF(first normal form)</h2>
+<p>where each column contains atomic values, no repeating groups or arrays.</p>
+<h2 id="2nfsecond-normal-form">2NF(Second normal form)</h2>
+<p>It must be in 1NF, and there should be no partial dependencies (all non-key attributes depend on the entire primary key)</p>
+<h2 id="3nfthird-normal-form">3NF(Third normal form)</h2>
+<p>It must be in 2NF, and there should be no transitive dependencies (non-key attributes shouldn’t depend on other non-key attributes)</p>
+<h2 id="boyle-codd-normal-form">(Boyle-Codd normal form)</h2>
+<p>Stricter version of 3NF, where every determinant must be a candidate key.</p>
+<h2 id="example">Example:</h2>
+<h2 id="unnormalized-form-0nf">Unnormalized Form (0NF)</h2>
+<p><strong>Student<em>Course</em>Data:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>student_name</th>
+      <th>courses_enrolled</th>
+      <th>instructors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Lokesh</td>
+      <td>IST821, IST597</td>
+      <td>Prof.Dan, Prof.Smith</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Alice</td>
+      <td>IST821</td>
+      <td>Prof.Dan</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Problems:</strong> Repeating groups (multiple courses in one field), non-atomic values</p>
+<p>---</p>
+<h2 id="1nf-atomic-values">1NF (Atomic Values)</h2>
+<p><strong>Student_Course:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>student_name</th>
+      <th>course_id</th>
+      <th>instructor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Lokesh</td>
+      <td>IST821</td>
+      <td>Prof.Dan</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Lokesh</td>
+      <td>IST597</td>
+      <td>Prof.Smith</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Alice</td>
+      <td>IST821</td>
+      <td>Prof.Dan</td>
+    </tr>
+  </tbody>
+</table>
+<p>✓ <strong>Fixed:</strong> All values are atomic</p>
+<p>✗ <strong>Problem:</strong> student<em>name repeats (redundancy), instructor depends only on course</em>id (partial dependency)</p>
+<p>---</p>
+<h2 id="2nf-no-partial-dependencies">2NF (No Partial Dependencies)</h2>
+<p><strong>Students:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>student_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Lokesh</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Alice</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Enrollments:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>course_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>IST821</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>IST597</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>IST821</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Courses:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>course_id</th>
+      <th>instructor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IST821</td>
+      <td>Prof.Dan</td>
+    </tr>
+    <tr>
+      <td>IST597</td>
+      <td>Prof.Smith</td>
+    </tr>
+  </tbody>
+</table>
+<p>✓ <strong>Fixed:</strong> No partial dependencies</p>
+<p>✗ <strong>Problem:</strong> If Prof.Dan teaches multiple courses, his name repeats (transitive dependency: course_id → instructor)</p>
+<p>---</p>
+<h2 id="3nf-no-transitive-dependencies">3NF (No Transitive Dependencies)</h2>
+<p><strong>Students:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>student_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Lokesh</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Alice</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Enrollments:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>student_id</th>
+      <th>course_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>IST821</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>IST597</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>IST821</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Courses:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>course_id</th>
+      <th>instructor_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IST821</td>
+      <td>101</td>
+    </tr>
+    <tr>
+      <td>IST597</td>
+      <td>102</td>
+    </tr>
+  </tbody>
+</table>
+<p><strong>Instructors:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>instructor_id</th>
+      <th>instructor_name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>101</td>
+      <td>Prof.Dan</td>
+    </tr>
+    <tr>
+      <td>102</td>
+      <td>Prof.Smith</td>
+    </tr>
+  </tbody>
+</table>
+<p>✓ <strong>Fully normalized:</strong> No redundancy, each fact stored once, easy updates!</p>
+<h1 id="relational-databases-vs-document-databasenosql">Relational Databases vs Document Database(Nosql)</h1>
+<h2 id="many-to-many-relationships">Many to Many relationships</h2>
+<p>In Document databases which relies on JSON and XML to represent data model and form relationships, while relational database relies on tables, like we seen above. It’s easier to represent Many to Many relationship in RDBs than in Nosql. </p>
+<p>Relationship : Posts↔ Tags( one post has many tags, one tag appears in many posts). </p>
+<p>SQL(Relational): where we can have a posts table, tags table, and a junction table that has both posts and tags id, so with a single join command you can either get posts with particular tags, or tags related to particular posts.</p>
+<p>NoSQL : we might embed tags in posts, so, each posts inherently contain tags like “AI”, “security”. so when we try to find all posts with tag “AI”, it becomes cumbersome. We might either use <strong>Denormalize</strong>( duplicate data)→ consistency Problems and Use <strong>references</strong>(like SQL foreign keys) → performance problems. where if you want to update a post that contains tag “AI”, but now you want to change the tag to “artificial Intelligence”, what happens is, you have to write application code to do additional work to keep denormalized data consistent— risks you have is ( race conditions, partial failures ). If you try to use <strong>references</strong> , then there would be multiple reads and network round trips, more memory, complex error handling and the code gets bloated.</p>
+<p>These problems could be seen across in Many to One too. But in One to many both SQL and Nosql do better job.</p>
+<h2 id="summary">Summary</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Relationship</th>
+      <th>SQL</th>
+      <th>NoSQL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>One-to-Many</strong></td>
+      <td>Easy (foreign key)</td>
+      <td>Easy (embedding)</td>
+    </tr>
+    <tr>
+      <td><strong>Many-to-One</strong></td>
+      <td>Easy (JOIN)</td>
+      <td>Hard (scan or duplicate)</td>
+    </tr>
+    <tr>
+      <td><strong>Many-to-Many</strong></td>
+      <td>Easy (junction table)</td>
+      <td>Hard (no native joins, duplicate or multiple queries)</td>
+    </tr>
+  </tbody>
+</table>
+<h2 id="schema-on-write-and-schema-on-read">Schema-on-write and Schema-on-read</h2>
+<p><strong>Schema-on-read</strong> is associated with Nosql, here the schema is implicitly defined and only interpreted when data is read. It’s similar to runtime type checking , here type means schema.</p>
+<p><strong>Schema-on-write</strong> is associated with relational DB, where the schemas are defined explicitly and ensures that the data written conforms to it.</p>
+<h2 id="schema-migrations">Schema Migrations</h2>
+<p>Changes in Schemas like adding new column, might cause schema migrations, which is easier in Nosql as you have to write few lines of code in the application and move on from there.</p>
+<p>Unfortunately relational databases can too, except Mysql, which when the table alters, copies the whole table before updating the column or schema, though now, there are workarounds like githubs ghost migration.</p>
+<h2 id="locality">Locality</h2>
+<p>Locality is refered to how related data that’s frequently accessed together is stored physically close together in disk. Good locality means that data you require is in one place, poor locality means data is scattered across disk leading to slow reads or updates.</p>
+<p>In <strong>relational DBs</strong> , clustered indexes, index organized tables and partioning are used for better locality. It is useful if you want to access data together.</p>
+<p>In <strong>Document DBs</strong> , Sharding, compression, and partial updates where fields are updated without writing the entire documents. It’s useful if you want to access data in many different combinations.</p>
+<h1 id="network-model">Network model</h1>
+<p>In network model, there is a root from which the data is transferred to a leaf node, it become cumbersome over time. To fetch a data in its intermediate node or in leaf node, you have to have a access path, which fetches the data through traversing from root to the specified node. It creates lag when updating the database or when issuing multiple queries.</p>
+<h1 id="query-language-for-data">Query Language for data</h1>
+<p>There are two types of query language:</p>
+<ol>
+  <li>Declarative QL ; SQL, its also used in CSS and XSL too, for parent child relationships. it is more attractive (concise and could be developed for performance) and easy to parallelize as it doesn’t depend on order.</li>
+  <li>Imperative QL : a code or program, more like nosql. It could be cumbersome, because it follows order, where it needs to change or move around the data to reclaim free space. An imperative language tells the computer to perform certain operations in certain order.</li>
+</ol>
+<h1 id="mapreduce">Mapreduce</h1>
+<p>It’s used primarily for querying large databases with more data. It parallelizes across many machines by breaking work into two phases : Map(transform) and reduce(aggregate), where map transforms to a utility which could be then reduced to get the appropriate result.</p>
+<h1 id="graph-like-data-models">Graph like Data Models</h1>
+<p>Mostly used for many to many relationships.</p>
+<p>A graph contains 2 kinds of objects:</p>
+<ol>
+  <li>Vertex</li>
+  <li>Edges</li>
+</ol>
+<p>Examples of where it could be used are in social graphs, the web graph and in road or rail networks.</p>
+<h2 id="graph-models">Graph Models</h2>
+<h3 id="property-graph-model">Property graph model</h3>
+<p>It’s used in neo4j, titan and infinegraph. Here the vertex and edge consist of a unique ID and a collection of properties(key-value), it differs when vertex has a set of outgoing and incoming edges, while edges have tail vertex(start point) and head vertex(end point).</p>
+<p>It’s more like two relational DBs, but it has no schemas similar to Nosql, which is suitable to trace out connectivity, and it could have different relationships with different vertices.</p>
+<h3 id="triple-store-model">Triple Store model</h3>
+<p>It’s used in Datomic, Allegrograph and athens. Here the informations are stored in very simple three part statements : (<strong>subject</strong>, <strong>predicate</strong>, <strong>object</strong> ) for eg: (jim, likes, bananas). </p>
+<p>The subject of a triple is equivalent to a vertex in graph and object could be either a primitive data type(lucy, age, 25) or another vertex in graph(lucy, married, alie). These were mainly used for semantic web, with resource description framework.</p>
+<h3 id="query-languages">Query Languages</h3>
+<p><strong>Cypher</strong> → it’s a declarative query language, created for Neo4j graph DB, it works by starting with two vertices and can goes backward.. it takes constant time.</p>
+<p><strong>SPARQL → used for RDF.</strong></p>
+<p><strong>Datalog</strong> → oldest graph query language used in hadoop, and dataomic.</p>
+<h1 id="graph-queries-in-sql">Graph queries in SQL</h1>
+<p>You have to traverse graph before you reach your answers and it may take many no of joins, which consumes a lot of memory and computing power.</p>
+<h1 id="can-i-use-graph-data-models-for-many-to-one-and-one-to-many">Can I use graph data models for Many to one and one to many:</h1>
+<p>It works fine, but it depends on my use case, as graph models are good at complex traversals and connected data, relational databases provide simple queries and aggregations. </p>
+<p>Graph models would be overkill for simple one to many , while sql provides deeply connected variable-depth queries.</p>
+<p>If you are concerned only about the relationships, then go for graph models, but if your relationships are just organizational (foreign keys for grouping), use SQL.</p>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/loki52501" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:lokeshlks01@gmail.com">Email</a>
+            <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        </div>
+        <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
+    </footer>
+</body>
+</html>

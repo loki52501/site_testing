@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI - Blog - My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html">Home</a><a href="about.html">About</a><a href="projects.html">Projects</a><a href="blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        
+        <div class="content-wrapper">
+            <div class="blog-container">
+<aside class="blog-sidebar">
+    <nav class="sidebar-menu">
+        <h3>Categories</h3>
+        <ul>
+            <li><a href="blogs.html">All Posts</a></li>
+        <li class="category-item">
+            <a href="books.html">Books</a>
+        </li>
+        <li class="category-item">
+            <a href="movies.html">Movies</a>
+        </li>
+        <li class="category-item">
+            <a href="random.html">Random</a>
+        </li>
+        <li class="category-item">
+            <a href="tech.html">Tech</a>
+            <ul class="subcategory-list">
+            <li class="category-item">
+                <a href="AI.html" class="active">AI</a>
+            </li>
+            <li class="category-item">
+                <a href="Thinking like a engineer.html">Thinking Like A Engineer</a>
+            </li>
+            </ul>
+        </li>
+        </ul>
+    </nav>
+</aside>
+    <div class="blog-content">
+        <h1>AI</h1>
+        <p>Posts in the AI category</p>
+
+        <div class="blog-list" id="search-results">
+            <article class="blog-item">
+                <span class="category-badge">AI</span>
+                <h2><a href="blog/tech/AI/fastai_ch1.html">Deep Learning Q&A Notes</a></h2>
+                <p class="blog-date">Published on December 22, 2025 at 10:55 PM</p>
+                <p class="blog-excerpt">- Detecting anomalies in cybersecurity - Medicine - Self-driving cars - Natural language processing - Robotics and recommendation systems **Q: What was the name of the first device based on the...</p>
+                <a href="blog/tech/AI/fastai_ch1.html" class="read-more">Read more →</a>
+            </article>
+            <article class="blog-item">
+                <span class="category-badge">AI</span>
+                <h2><a href="blog/tech/AI/ai-streaming-infra.html">AI-Driven Streaming Infra: Keeping Playback Smooth</a></h2>
+                <p class="blog-date">Published on December 13, 2025 at 03:45 PM</p>
+                <p class="blog-excerpt">I built an adaptive streaming platform that uses AI-based bitrate prediction to reduce buffering when networks fluctuate. This was amazing. - Python + FastAPI on AWS EC2 - React client with SSE for...</p>
+                <a href="blog/tech/AI/ai-streaming-infra.html" class="read-more">Read more →</a>
+            </article>
+        </div>
+    </div>
+    <aside class="search-sidebar">
+        <div class="search-sidebar-sticky">
+            <h3>Search & Filter</h3>
+            <input type="text" id="blog-search" placeholder="Search posts..." aria-label="Search blogs">
+            
+            <div class="search-filters">
+                <h4>Filter by Category</h4>
+                <div class="category-filters">
+                    <a href="#" class="category-filter" data-category="AI">AI</a>
+                </div>
+            </div>
+            
+            <div class="sort-control">
+                <label for="blog-sort">Sort by</label>
+                <select id="blog-sort">
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="title-asc">Title (A-Z)</option>
+                    <option value="title-desc">Title (Z-A)</option>
+                </select>
+            </div>
+            
+            <p id="result-count" class="result-count"></p>
+        </div>
+    </aside>
+</div>
+<script src="search.js"></script>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/loki52501" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:lokeshlks01@gmail.com">Email</a>
+            <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        </div>
+        <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
+    </footer>
+
+    <!-- Prism.js scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-julia.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+</body>
+</html>

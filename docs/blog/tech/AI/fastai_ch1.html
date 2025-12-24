@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Q&A Notes - My Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../style.css">
+    <!-- Prism.js for syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="../../../index.html">Home</a><a href="../../../about.html">About</a><a href="../../../projects.html">Projects</a><a href="../../../blogs.html">Blog</a>
+        </div>
+    </nav>
+
+    <main>
+        <nav class="toc">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li class="toc-level-2"><a href="#applications-and-fundamentals">Applications and Fundamentals</a></li>
+            <li class="toc-level-3"><a href="#five-areas-where-deep-learning-excels">Five Areas Where Deep Learning Excels</a></li>
+            <li class="toc-level-3"><a href="#historical-context">Historical Context</a></li>
+        <li class="toc-level-2"><a href="#hardware-and-computing">Hardware and Computing</a></li>
+        <li class="toc-level-2"><a href="#core-concepts">Core Concepts</a></li>
+            <li class="toc-level-3"><a href="#model-understanding">Model Understanding</a></li>
+            <li class="toc-level-3"><a href="#samuels-machine-learning-model">Samuel's Machine Learning Model</a></li>
+            <li class="toc-level-3"><a href="#theoretical-foundations">Theoretical Foundations</a></li>
+        <li class="toc-level-2"><a href="#practical-considerations">Practical Considerations</a></li>
+            <li class="toc-level-3"><a href="#bias-and-ethics">Bias and Ethics</a></li>
+            <li class="toc-level-3"><a href="#image-processing">Image Processing</a></li>
+        <li class="toc-level-2"><a href="#training-and-validation">Training and Validation</a></li>
+            <li class="toc-level-3"><a href="#datasets">Datasets</a></li>
+            <li class="toc-level-3"><a href="#overfitting">Overfitting</a></li>
+            <li class="toc-level-3"><a href="#metrics-and-loss">Metrics and Loss</a></li>
+        <li class="toc-level-2"><a href="#model-architecture">Model Architecture</a></li>
+            <li class="toc-level-3"><a href="#transfer-learning">Transfer Learning</a></li>
+            <li class="toc-level-3"><a href="#cnn-feature-hierarchy">CNN Feature Hierarchy</a></li>
+            <li class="toc-level-3"><a href="#architecture-concepts">Architecture Concepts</a></li>
+            <li class="toc-level-3"><a href="#hyperparameters">Hyperparameters</a></li>
+        <li class="toc-level-2"><a href="#best-practices">Best Practices</a></li>
+    </ul>
+</nav>
+
+        <div class="content-wrapper">
+            <h1 id="deep-learning-qa-notes">Deep Learning Q&A Notes</h1>
+<h2 id="applications-and-fundamentals">Applications and Fundamentals</h2>
+<h3 id="five-areas-where-deep-learning-excels">Five Areas Where Deep Learning Excels</h3>
+<p>Deep learning is now the best tool in the world for:</p>
+<ul>
+  <li>Detecting anomalies in cybersecurity</li>
+  <li>Medicine</li>
+  <li>Self-driving cars</li>
+  <li>Natural language processing</li>
+  <li>Robotics and recommendation systems</li>
+</ul>
+<h3 id="historical-context">Historical Context</h3>
+<p><strong>Q: What was the name of the first device based on the principle of the artificial neuron?</strong>   A: Mark 1 Perceptron</p>
+<p><strong>Q: What are the requirements for Parallel Distributed Processing (PDP)?</strong>   Based on the book of the same name:</p>
+<ul>
+  <li>A set of processing units</li>
+  <li>A state of activation</li>
+  <li>An output function for each unit</li>
+  <li>A pattern of connectivity among units</li>
+  <li>A propagation rule for propagating patterns of activities through the network of connectivities</li>
+  <li>An activation rule for combining the inputs impinging on a unit with the current state of that unit to produce an output for the unit</li>
+  <li>A learning rule whereby patterns of connectivity are modified by experience</li>
+  <li>An environment within which the systems must operate</li>
+</ul>
+<p><strong>Q: What were the two theoretical misunderstandings that held back the field of neural networks?</strong>   A: It was hard to calculate the approximation even if added few layers.</p>
+<h2 id="hardware-and-computing">Hardware and Computing</h2>
+<p><strong>Q: What is a GPU?</strong>   A: A Graphics Processing Unit that uses SIMD (Single Instruction, Multiple Data) architecture. It can handle thousands of single tasks at the same time. GPUs can run neural networks hundreds of times faster than regular CPUs.</p>
+<p><strong>Q: Open a notebook and execute a cell containing: 1+1. What happens?</strong>   A: Returns <code>2</code></p>
+<h2 id="core-concepts">Core Concepts</h2>
+<h3 id="model-understanding">Model Understanding</h3>
+<p><strong>Q: Why is it hard to use a traditional computer program to recognize images in a photo?</strong>   A: It works differently from the brain.</p>
+<p><strong>Q: What did Samuel mean by "weight assignment"?</strong>   A: The parameters or features of a model - a variable in a mathematical equation that determines the output according to the relevant input.</p>
+<p><strong>Q: What term do we normally use in deep learning for what Samuel called "weights"?</strong>   A: Parameters</p>
+<h3 id="samuels-machine-learning-model">Samuel's Machine Learning Model</h3>
+<p>> "Suppose we arrange for some automatic means of testing the effectiveness of any current weight assignment in terms of actual performance and provide a mechanism for altering the weight assignment so as to maximize the performance. We need not go into the details of such a procedure to see that it could be made entirely automatic and to see that a machine so programmed would 'learn' from its experience."</p>
+<p><img src="../assets/dlcf<em>0106</em>1766443982396_0.png" alt="Samuel's ML Model Diagram"></p>
+<p><strong>Q: Why is it hard to understand why a deep learning model makes a particular prediction?</strong>   A: Because it does a lot of calculations inside the neurons that it's hard to predict how it works.</p>
+<h3 id="theoretical-foundations">Theoretical Foundations</h3>
+<p><strong>Q: What is the name of the theorem that shows that a neural network can solve any mathematical problem to any level of accuracy?</strong>   A: Universal Approximation Theorem</p>
+<p><strong>Q: What do you need in order to train a model?</strong>   A: Data - lots of data.</p>
+<h2 id="practical-considerations">Practical Considerations</h2>
+<h3 id="bias-and-ethics">Bias and Ethics</h3>
+<p><strong>Q: How could a feedback loop impact the rollout of a predictive policing model?</strong>   A: It can make the model biased through more positive feedback, creating a problematic loop.</p>
+<h3 id="image-processing">Image Processing</h3>
+<p><strong>Q: Do we always have to use 224×224-pixel images with the cat recognition model?</strong>   A: Not necessary. If you use lower pixels, it gets more difficult, but if you increase the size, it may be much more accurate but at the price of memory consumption and speed.</p>
+<p><strong>Q: What is the difference between classification and regression?</strong>  </p>
+<ul>
+  <li><strong>Classification</strong>: Predicts an entity to a known label which it was trained on during training</li>
+  <li><strong>Regression</strong>: Predicts a numerical outcome, such as temperature or a location</li>
+</ul>
+<h2 id="training-and-validation">Training and Validation</h2>
+<h3 id="datasets">Datasets</h3>
+<p><strong>Q: What is a validation set? What is a test set? Why do we need them?</strong></p>
+<p><strong>Validation Set</strong>: A part of 20% of a dataset that is used to verify if the model that is being trained using the training set (80% of the dataset) correctly predicts the logical values.</p>
+<p><strong>Test Set</strong>: Contains data that's been untouched by humans as well as the model - it's from a completely different dataset. It's needed for validating that the model is producing output as it intended to do.</p>
+<p><strong>Why both?</strong> With the validation set, one can never be sure if the model has seen it or not. Even if the model never sees it, we see it, and we change hyperparameters such that the weights will closely align with the validation sets, making it less reliable.</p>
+<p><strong>Q: What will fastai do if you don't provide a validation set?</strong>   A: Fastai will create a validation set on its own.</p>
+<p><strong>Q: Can we always use a random sample for a validation set? Why or why not?</strong>   A: 20% is the usual proportion used.</p>
+<h3 id="overfitting">Overfitting</h3>
+<p><strong>Q: What is overfitting? Provide an example.</strong>   A: Overfitting tends to occur when the model memorizes instead of creating a function to predict or classify, by which means it cannot predict about an unknown quantity that is not present in its training set.</p>
+<p><strong>Example</strong>: If you give all images of an orange cat, and you ask it to predict if a grey colored cat is a cat, it's going to return false.</p>
+<h3 id="metrics-and-loss">Metrics and Loss</h3>
+<p><strong>Q: What is a metric? How does it differ from loss?</strong></p>
+<ul>
+  <li><strong>Metric</strong>: A value that determines how well the model performs against a validation set overall, designed for human consumption</li>
+  <li><strong>Loss</strong>: A measure of how good the model is, chosen to drive training via SGD (Stochastic Gradient Descent) for the neural networks</li>
+</ul>
+<h2 id="model-architecture">Model Architecture</h2>
+<h3 id="transfer-learning">Transfer Learning</h3>
+<p><strong>Q: How can pretrained models help?</strong>   A: Pretrained models have already been trained and can be used to further train using our data to fine-tune our answers.</p>
+<p><strong>Q: What is the "head" of a model?</strong>   A: The part that is newly added to be specific to the new dataset.</p>
+<h3 id="cnn-feature-hierarchy">CNN Feature Hierarchy</h3>
+<p><strong>Q: What kinds of features do the early layers of a CNN find?</strong></p>
+<p><strong>Early Layers:</strong></p>
+<ul>
+  <li>Simple, low-level features: edges, gradients, colors, basic textures</li>
+  <li>Very generic patterns that appear in almost any image</li>
+  <li>Small receptive fields (look at tiny patches)</li>
+</ul>
+<p><strong>Middle Layers:</strong></p>
+<ul>
+  <li>Combinations of those simple features</li>
+  <li>Textures, corners, curves, simple shapes</li>
+  <li>Starting to detect patterns like "circles," "grids," "repeating patterns"</li>
+</ul>
+<p><strong>Later/Deeper Layers:</strong></p>
+<ul>
+  <li>High-level, semantic features specific to your task</li>
+  <li>Object parts: eyes, wheels, fur, windows</li>
+  <li>Complex patterns: "dog face," "car body," "building facade"</li>
+  <li>Task-specific concepts</li>
+</ul>
+<p><strong>The Progression:</strong></p>
+<ul>
+  <li>Early: edges → corners → textures</li>
+  <li>Middle: shapes → patterns → object parts</li>
+  <li>Late: whole objects → semantic concepts</li>
+</ul>
+<p><strong>Example in Practice:</strong></p>
+<ul>
+  <li>Layer 1: horizontal/vertical edges</li>
+  <li>Layer 5: wheel-like circles, fur texture</li>
+  <li>Layer 15: "this looks like a dog's face"</li>
+</ul>
+<p><strong>Key Insight</strong>: The network builds a hierarchy - simple → complex. Each layer uses the previous layer's features as building blocks.</p>
+<h3 id="architecture-concepts">Architecture Concepts</h3>
+<p><strong>Q: Are image models useful only for photos?</strong>   A: No, they can also be used for anomaly detection and other applications.</p>
+<p><strong>Q: What is an architecture?</strong>   A: The template of the model that we're trying to fit - the actual mathematical function that we're passing the input data and parameters to.</p>
+<p><strong>Q: What is segmentation?</strong>   A: Creating a model that can recognize every pixel of an image.</p>
+<h3 id="hyperparameters">Hyperparameters</h3>
+<p><strong>Q: What is y_range used for? When do we need it?</strong>   A: <code>y_range</code> is used for continuous outputs to constrain where our target should range. It's a constraint that the model should follow such that its output should lie between these values. You need it when your target has known bounds like ratings, and you want to prevent nonsensical predictions.</p>
+<p><strong>Q: What are hyperparameters?</strong>   A: Hyperparameters are used to determine weights or parameters. They can include activation functions, learning rate/step, and other factors necessary to influence the parameters of a neural network.</p>
+<h2 id="best-practices">Best Practices</h2>
+<p><strong>Q: What's the best way to avoid failures when using AI in an organization?</strong>   A: Have test data for an AI such that it will help avoid failures.</p>
+<p>---</p>
+<p><em>These notes appear to be from a deep learning course or textbook study guide, covering fundamental concepts in machine learning and neural networks.</em></p>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/loki52501" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:lokeshlks01@gmail.com">Email</a>
+            <a href="https://mastodon.social/@lifeofcyb" target="_blank" rel="noopener noreferrer">Mastodon</a>
+        </div>
+        <p>&copy; 2025-26 Lokesh L K S Site.  A orginal</p>
+    </footer>
+
+    <!-- Prism.js scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-r.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-julia.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+</body>
+</html>

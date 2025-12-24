@@ -11,14 +11,20 @@ include_directories(include)
 set(SOURCES
     src/main.cpp
     src/markdown_parser.cpp
+    src/blog_database.cpp
+    src/jupyter_parser.cpp
 )
 
 # Create executable
 add_executable(site_generator ${SOURCES})
 
+# Link SQLite3
+find_package(SQLite3 REQUIRED)
+target_link_libraries(site_generator SQLite::SQLite3)
+
 # For Windows, link against stdc++fs if needed
 if(WIN32)
-    target_link_libraries(site_generator)
+    # target_link_libraries(site_generator) # Already linked SQLite3 above
 endif()
 
 # For Linux/Mac, may need to link filesystem library
